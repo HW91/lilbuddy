@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Personal Assistant</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    #assistant-image { width: 100px; height: 100px; border-radius: 10px; object-fit: cover; }
+    .section { margin-bottom: 20px; }
+    .section label { display: block; margin-bottom: 5px; }
+    .section input, .section select, .section button, .section textarea { width: 100%; padding: 8px; margin-bottom: 10px; }
+    .shortcuts button { padding: 10px; margin: 5px; }
+  </style>
+</head>
+<body>
+  <div class="section">
+    <img id="assistant-image" src="assistant.png" alt="Assistant">
+    <label for="image-upload">Change Assistant Image:</label>
+    <input type="file" id="image-upload" accept="image/*">
+  </div>
+
+  <div class="section">
+    <label for="text-input">Type a message:</label>
+    <textarea id="text-input" rows="3" placeholder="Type here..."></textarea>
+    <button id="send-text">Speak</button>
+  </div>
+
+  <div class="section shortcuts">
+    <label>Shortcut Buttons:</label>
+    <button class="shortcut" data-text="Call nurse">Call nurse</button>
+    <button class="shortcut" data-text="I need help">I need help</button>
+    <button class="shortcut" data-text="What’s the weather?">What’s the weather?</button>
+  </div>
+
+  <div class="section">
+    <label for="voice-select">Choose voice:</label>
+    <select id="voice-select">
+      <option value="">--Select Voice--</option>
+      <option value="voice1">Voice Option 1</option>
+      <option value="voice2">Voice Option 2</option>
+      <option value="voice3">Voice Option 3</option>
+    </select>
+  </div>
+
+  <div class="section">
+    <label for="topics-select">Topics for Initiated Conversations:</label>
+    <select id="topics-select" multiple>
+      <option value="health">Health</option>
+      <option value="news">News</option>
+      <option value="weather">Weather</option>
+      <option value="reminders">Reminders</option>
+    </select>
+  </div>
+
+  <div class="section">
+    <label for="daily-frequency">How many times per day to initiate:</label>
+    <input type="number" id="daily-frequency" min="1" max="24" value="1">
+    <label for="time-window-start">Start time (HH:MM):</label>
+    <input type="time" id="time-window-start" value="09:00">
+    <label for="time-window-end">End time (HH:MM):</label>
+    <input type="time" id="time-window-end" value="17:00">
+    <button id="save-preferences">Save Preferences</button>
+  </div>
+
+  <audio id="audio-player" controls style="display:none;"></audio>
+
+  <script>
+    const WEBHOOK_URL = 'YOUR_WEBHOOK_URL';
+
+    document.getElementById('send-text').addEventListener('click', () => {
+      const text = document.getElementById('text-input').value.trim();
+      const voice = document.getElementById('voice-select').value;
+      if (!text || !voice) return;
+      fetch(WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'text', content: text, voice: voice })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.audio_url) {
+          const player = document.getElementById('audio-player');
+          player.src = data.audio_url;
+          player.style.display = 'block';
+          player.play();
+        }
+      });
+    });
+
+    document.querySelectorAll('.shortcut').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const text = btn.getAttribute('data-text');
+        const voice = document.getElementById('voice-select').value;
+        if (!voice) return;
+        fetch(WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: 'text', content: text, voice: voice })
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.audio_url) {
+            const player = document.getElementById('audio-player');
+            player.src = data.audio_url;
+            player.style.display = 'block';
+            player.play();
+          }
+        });
+      });
+    });
+
+    document.getElementById('save-preferences').addEventListener('click', () => {
+      const frequency = document.getElementById('daily-frequency').value;
+      const start = document.getElementById('time-window-start').value;
+      const end = document.getElementById('time-window-end').value;
+      const topics = Array.from(document.getElementById('topics-select').selectedOptions).map(o => o.value);
+      fetch(WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'preferences', frequency: frequency, window_start: start, window_end: end, topics: topics })
+      });
+    });
+
+    document.getElementById('image-upload').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        document.getElementById('assistant-image').src = evt.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  </script>
+</body>
+</html>
