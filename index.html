@@ -2,286 +2,128 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Assistant</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Assistant Carousel</title>
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
-      margin: 0;
-      padding: 0;
-      background: #f4f7fa;
-      color: #333;
-    }
-
-    .container {
-      max-width: 600px;
-      margin: auto;
-      padding: 20px;
-      background: white;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-      border-radius: 12px;
-      margin-top: 30px;
-    }
-
-    h1 {
-      text-align: center;
-      color: #4a90e2;
-      display: none;
-    }
-
-    .assistant-selector {
+      font-family: sans-serif;
       display: flex;
-      overflow-x: auto;
-      gap: 12px;
-      padding: 10px 0;
-      justify-content: center;
+      flex-direction: column;
+      align-items: center;
+      margin: 0;
+      background: #f4f4f4;
     }
 
-    .assistant-option {
-      flex: 0 0 auto;
-      cursor: pointer;
-      border: 2px solid transparent;
-      border-radius: 50%;
-      transition: border 0.3s;
+    .carousel-container {
+      width: 100%;
+      max-width: 600px;
+      overflow: hidden;
+      position: relative;
+      margin: 50px auto;
     }
 
-    .assistant-option img {
+    .carousel {
+      display: flex;
+      transition: transform 0.3s ease-in-out;
+    }
+
+    .carousel img {
       width: 100px;
       height: 100px;
       object-fit: cover;
-      border-radius: 50%;
+      margin: 0 10px;
+      opacity: 0.5;
+      transform: scale(0.8);
+      transition: transform 0.3s, opacity 0.3s;
     }
 
-    .assistant-option.selected {
-      border: 3px solid #4a90e2;
+    .carousel img.active {
+      width: 150px;
+      height: 150px;
+      opacity: 1;
+      transform: scale(1);
+      z-index: 2;
     }
 
-    #selected-name {
-      text-align: center;
-      font-size: 18px;
-      margin-bottom: 15px;
-      font-weight: bold;
+    .controls {
+      margin-top: 20px;
     }
 
-    .section {
-      margin-bottom: 25px;
-    }
-
-    .section label {
-      font-weight: bold;
-      margin-bottom: 6px;
-      display: block;
-    }
-
-    .section input,
-    .section select,
-    .section button,
-    .section textarea {
-      width: 100%;
-      padding: 10px;
-      margin-top: 6px;
-      margin-bottom: 12px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 16px;
-    }
-
-    textarea {
-      resize: vertical;
-    }
-
-    .shortcuts button {
-      padding: 10px 14px;
-      margin: 6px 6px 0 0;
-      border: none;
-      border-radius: 6px;
-      background-color: #4a90e2;
-      color: white;
-      cursor: pointer;
-      font-size: 15px;
-    }
-
-    .shortcuts button:hover {
-      background-color: #357ab8;
-    }
-
-    #send-text {
-      background-color: #4caf50;
-      color: white;
-      font-weight: bold;
-      border: none;
-      border-radius: 6px;
+    button {
+      padding: 10px 15px;
+      margin: 0 5px;
       cursor: pointer;
     }
 
-    #send-text:hover {
-      background-color: #3e8e41;
-    }
-
-    #save-preferences {
-      background-color: #ff9800;
-      color: white;
+    .info {
+      margin-top: 10px;
       font-weight: bold;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    #save-preferences:hover {
-      background-color: #e68900;
-    }
-
-    audio {
-      margin-top: 15px;
-      width: 100%;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Personal Assistant</h1>
 
-    <div class="section">
-      <div class="assistant-selector" id="assistant-selector">
-        <div class="assistant-option" data-voice="voice1" data-name="Alex">
-          <img src="assistant1.png" alt="Assistant 1" />
-        </div>
-        <div class="assistant-option" data-voice="voice2" data-name="Jamie">
-          <img src="assistant2.png" alt="Assistant 2" />
-        </div>
-        <div class="assistant-option" data-voice="voice3" data-name="Riley">
-          <img src="assistant3.png" alt="Assistant 3" />
-        </div>
-        <div class="assistant-option" data-voice="voice4" data-name="Morgan">
-          <img src="assistant4.png" alt="Assistant 4" />
-        </div>
-        <div class="assistant-option" data-voice="voice5" data-name="Taylor">
-          <img src="assistant5.png" alt="Assistant 5" />
-        </div>
-        <div class="assistant-option" data-voice="voice6" data-name="Sam">
-          <img src="assistant6.png" alt="Assistant 6" />
-        </div>
-      </div>
-      <div id="selected-name">Selected: Alex</div>
+  <div class="carousel-container">
+    <div id="carousel" class="carousel">
+      <img src="assistant1.png" alt="Assistant 1">
+      <img src="assistant2.png" alt="Assistant 2">
+      <img src="assistant3.png" alt="Assistant 3">
+      <img src="assistant4.png" alt="Assistant 4">
+      <img src="assistant5.png" alt="Assistant 5">
+      <img src="assistant6.png" alt="Assistant 6">
     </div>
+  </div>
 
-    <div class="section">
-      <label for="text-input">Type a message:</label>
-      <textarea id="text-input" rows="3" placeholder="Type here..."></textarea>
-      <button id="send-text">Speak</button>
-    </div>
+  <div class="controls">
+    <button onclick="prev()">◀️</button>
+    <button onclick="next()">▶️</button>
+  </div>
 
-    <div class="section shortcuts">
-      <label>Shortcut Buttons:</label>
-      <button class="shortcut" data-text="Call nurse">Call nurse</button>
-      <button class="shortcut" data-text="I need help">I need help</button>
-      <button class="shortcut" data-text="What’s the weather?">What’s the weather?</button>
-    </div>
-
-    <div class="section">
-      <label for="topics-select">Topics for Initiated Conversations:</label>
-      <select id="topics-select" multiple>
-        <option value="health">Health</option>
-        <option value="news">News</option>
-        <option value="weather">Weather</option>
-        <option value="reminders">Reminders</option>
-      </select>
-    </div>
-
-    <div class="section">
-      <label for="daily-frequency">How many times per day to initiate:</label>
-      <input type="number" id="daily-frequency" min="1" max="24" value="1">
-      <label for="time-window-start">Start time:</label>
-      <input type="time" id="time-window-start" value="09:00">
-      <label for="time-window-end">End time:</label>
-      <input type="time" id="time-window-end" value="17:00">
-      <button id="save-preferences">Save Preferences</button>
-    </div>
-
-    <audio id="audio-player" controls style="display:none;"></audio>
+  <div class="info">
+    <div id="nameDisplay"></div>
+    <div id="voiceDisplay"></div>
   </div>
 
   <script>
-    const WEBHOOK_URL = 'YOUR_WEBHOOK_URL';
-    let selectedVoice = 'voice1';
-    let selectedName = 'Alex';
+    const images = document.querySelectorAll('#carousel img');
+    const carousel = document.getElementById('carousel');
+    const nameDisplay = document.getElementById('nameDisplay');
+    const voiceDisplay = document.getElementById('voiceDisplay');
 
-    function updateSelected(name, voice) {
-      selectedVoice = voice;
-      selectedName = name;
-      document.getElementById('selected-name').textContent = 'Selected: ' + name;
+    const assistants = [
+      { name: "Ava", voice: "en-US-JennyNeural" },
+      { name: "Leo", voice: "en-US-GuyNeural" },
+      { name: "Maya", voice: "en-GB-LibbyNeural" },
+      { name: "Zane", voice: "en-AU-WilliamNeural" },
+      { name: "Nina", voice: "en-IN-NeerjaNeural" },
+      { name: "Kai", voice: "en-NZ-MitchellNeural" }
+    ];
+
+    let currentIndex = 0;
+
+    function updateCarousel() {
+      images.forEach((img, i) => {
+        img.classList.remove('active');
+        if (i === currentIndex) img.classList.add('active');
+      });
+      const offset = (images[0].clientWidth + 20) * currentIndex;
+      carousel.style.transform = `translateX(-${offset - 150}px)`;
+
+      nameDisplay.textContent = `Name: ${assistants[currentIndex].name}`;
+      voiceDisplay.textContent = `Voice: ${assistants[currentIndex].voice}`;
     }
 
-    document.querySelectorAll('.assistant-option').forEach(opt => {
-      opt.addEventListener('click', () => {
-        document.querySelectorAll('.assistant-option').forEach(o => o.classList.remove('selected'));
-        opt.classList.add('selected');
-        updateSelected(opt.dataset.name, opt.dataset.voice);
-      });
-    });
+    function next() {
+      currentIndex = (currentIndex + 1) % images.length;
+      updateCarousel();
+    }
 
-    document.getElementById('send-text').addEventListener('click', () => {
-      const text = document.getElementById('text-input').value.trim();
-      if (!text || !selectedVoice) return;
-      fetch(WEBHOOK_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'text', content: text, voice: selectedVoice })
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.audio_url) {
-          const player = document.getElementById('audio-player');
-          player.src = data.audio_url;
-          player.style.display = 'block';
-          player.play();
-        }
-      });
-    });
+    function prev() {
+      currentIndex = (currentIndex - 1 + images.length) % images.length;
+      updateCarousel();
+    }
 
-    document.querySelectorAll('.shortcut').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const text = btn.getAttribute('data-text');
-        if (!selectedVoice) return;
-        fetch(WEBHOOK_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ type: 'text', content: text, voice: selectedVoice })
-        })
-        .then(res => res.json())
-        .then(data => {
-          if (data.audio_url) {
-            const player = document.getElementById('audio-player');
-            player.src = data.audio_url;
-            player.style.display = 'block';
-            player.play();
-          }
-        });
-      });
-    });
-
-    document.getElementById('save-preferences').addEventListener('click', () => {
-      const frequency = document.getElementById('daily-frequency').value;
-      const start = document.getElementById('time-window-start').value;
-      const end = document.getElementById('time-window-end').value;
-      const topics = Array.from(document.getElementById('topics-select').selectedOptions).map(o => o.value);
-      fetch(WEBHOOK_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          type: 'preferences',
-          frequency,
-          window_start: start,
-          window_end: end,
-          topics,
-          assistant_name: selectedName,
-          assistant_voice: selectedVoice
-        })
-      });
-    });
-
-    // Default select first assistant
-    document.querySelectorAll('.assistant-option')[0].classList.add('selected');
+    window.onload = updateCarousel;
   </script>
 </body>
 </html>
