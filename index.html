@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Personal Assistant</title>
+  <title>Assistant</title>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -26,6 +26,41 @@
     h1 {
       text-align: center;
       color: #4a90e2;
+      display: none;
+    }
+
+    .assistant-selector {
+      display: flex;
+      overflow-x: auto;
+      gap: 12px;
+      padding: 10px 0;
+      justify-content: center;
+    }
+
+    .assistant-option {
+      flex: 0 0 auto;
+      cursor: pointer;
+      border: 2px solid transparent;
+      border-radius: 50%;
+      transition: border 0.3s;
+    }
+
+    .assistant-option img {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+
+    .assistant-option.selected {
+      border: 3px solid #4a90e2;
+    }
+
+    #selected-name {
+      text-align: center;
+      font-size: 18px;
+      margin-bottom: 15px;
+      font-weight: bold;
     }
 
     .section {
@@ -53,16 +88,6 @@
 
     textarea {
       resize: vertical;
-    }
-
-    #assistant-image {
-      display: block;
-      margin: 0 auto 10px auto;
-      width: 100px;
-      height: 100px;
-      object-fit: cover;
-      border-radius: 50%;
-      border: 2px solid #4a90e2;
     }
 
     .shortcuts button {
@@ -117,9 +142,27 @@
     <h1>Personal Assistant</h1>
 
     <div class="section">
-      <img id="assistant-image" src="assistant.png" alt="Assistant Image">
-      <label for="image-upload">Change Assistant Image:</label>
-      <input type="file" id="image-upload" accept="image/*">
+      <div class="assistant-selector" id="assistant-selector">
+        <div class="assistant-option" data-voice="voice1" data-name="Alex">
+          <img src="assistant1.png" alt="Assistant 1" />
+        </div>
+        <div class="assistant-option" data-voice="voice2" data-name="Jamie">
+          <img src="assistant2.png" alt="Assistant 2" />
+        </div>
+        <div class="assistant-option" data-voice="voice3" data-name="Riley">
+          <img src="assistant3.png" alt="Assistant 3" />
+        </div>
+        <div class="assistant-option" data-voice="voice4" data-name="Morgan">
+          <img src="assistant4.png" alt="Assistant 4" />
+        </div>
+        <div class="assistant-option" data-voice="voice5" data-name="Taylor">
+          <img src="assistant5.png" alt="Assistant 5" />
+        </div>
+        <div class="assistant-option" data-voice="voice6" data-name="Sam">
+          <img src="assistant6.png" alt="Assistant 6" />
+        </div>
+      </div>
+      <div id="selected-name">Selected: Alex</div>
     </div>
 
     <div class="section">
@@ -133,16 +176,6 @@
       <button class="shortcut" data-text="Call nurse">Call nurse</button>
       <button class="shortcut" data-text="I need help">I need help</button>
       <button class="shortcut" data-text="What’s the weather?">What’s the weather?</button>
-    </div>
-
-    <div class="section">
-      <label for="voice-select">Choose voice:</label>
-      <select id="voice-select">
-        <option value="">--Select Voice--</option>
-        <option value="voice1">Voice Option 1</option>
-        <option value="voice2">Voice Option 2</option>
-        <option value="voice3">Voice Option 3</option>
-      </select>
     </div>
 
     <div class="section">
@@ -170,15 +203,30 @@
 
   <script>
     const WEBHOOK_URL = 'YOUR_WEBHOOK_URL';
+    let selectedVoice = 'voice1';
+    let selectedName = 'Alex';
+
+    function updateSelected(name, voice) {
+      selectedVoice = voice;
+      selectedName = name;
+      document.getElementById('selected-name').textContent = 'Selected: ' + name;
+    }
+
+    document.querySelectorAll('.assistant-option').forEach(opt => {
+      opt.addEventListener('click', () => {
+        document.querySelectorAll('.assistant-option').forEach(o => o.classList.remove('selected'));
+        opt.classList.add('selected');
+        updateSelected(opt.dataset.name, opt.dataset.voice);
+      });
+    });
 
     document.getElementById('send-text').addEventListener('click', () => {
       const text = document.getElementById('text-input').value.trim();
-      const voice = document.getElementById('voice-select').value;
-      if (!text || !voice) return;
+      if (!text || !selectedVoice) return;
       fetch(WEBHOOK_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'text', content: text, voice: voice })
+        body: JSON.stringify({ type: 'text', content: text, voice: selectedVoice })
       })
       .then(res => res.json())
       .then(data => {
@@ -194,12 +242,11 @@
     document.querySelectorAll('.shortcut').forEach(btn => {
       btn.addEventListener('click', () => {
         const text = btn.getAttribute('data-text');
-        const voice = document.getElementById('voice-select').value;
-        if (!voice) return;
+        if (!selectedVoice) return;
         fetch(WEBHOOK_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ type: 'text', content: text, voice: voice })
+          body: JSON.stringify({ type: 'text', content: text, voice: selectedVoice })
         })
         .then(res => res.json())
         .then(data => {
@@ -221,19 +268,20 @@
       fetch(WEBHOOK_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'preferences', frequency: frequency, window_start: start, window_end: end, topics: topics })
+        body: JSON.stringify({
+          type: 'preferences',
+          frequency,
+          window_start: start,
+          window_end: end,
+          topics,
+          assistant_name: selectedName,
+          assistant_voice: selectedVoice
+        })
       });
     });
 
-    document.getElementById('image-upload').addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function(evt) {
-        document.getElementById('assistant-image').src = evt.target.result;
-      };
-      reader.readAsDataURL(file);
-    });
+    // Default select first assistant
+    document.querySelectorAll('.assistant-option')[0].classList.add('selected');
   </script>
 </body>
 </html>
