@@ -130,6 +130,21 @@
     <div id="voiceDisplay"></div>
   </div>
 
+  <div class="communicate">
+    <h3>Speak for Me</h3>
+    <textarea id="speakText" rows="3" placeholder="Type something to say..."></textarea>
+    <button onclick="speakTypedText()">Speak</button>
+
+    <h3>Talk to Assistant</h3>
+    <button onclick="startListening()">Press to Speak</button>
+    <p id="speechResult" style="margin-top:10px; font-weight:bold;"></p>
+
+    <h3>Quick Speak Buttons</h3>
+    <button onclick="speakQuick('I need help, please.')">Help</button>
+    <button onclick="speakQuick('I’m hungry.')">Hungry</button>
+    <button onclick="speakQuick('Can someone take me outside?')">Go Outside</button>
+  </div>
+
   <div class="settings">
     <label>How many times per day should the assistant start a conversation?</label>
     <select id="conversationFrequency">
@@ -144,21 +159,6 @@
 
     <label>Pick conversation topics:</label>
     <input type="text" placeholder="e.g., news, weather, jokes"/>
-  </div>
-
-  <div class="communicate">
-    <h3>Speak for Me</h3>
-    <textarea id="speakText" rows="3" placeholder="Type something to say..."></textarea>
-    <button onclick="speakTypedText()">Speak</button>
-
-    <h3>Talk to Assistant</h3>
-    <button onclick="startListening()">Press to Speak</button>
-    <p id="speechResult" style="margin-top:10px; font-weight:bold;"></p>
-
-    <h3>Quick Speak Buttons</h3>
-    <button onclick="speakQuick('I need help, please.')">Help</button>
-    <button onclick="speakQuick('I’m hungry.')">Hungry</button>
-    <button onclick="speakQuick('Can someone take me outside?')">Go Outside</button>
   </div>
 
   <script>
@@ -176,7 +176,7 @@
       { name: "Kai", voice: "en-NZ-MitchellNeural" }
     ];
 
-    let currentIndex = 0;
+    let currentIndex = 2; // Default to 3rd image
 
     function updateCarousel() {
       images.forEach((img, i) => {
