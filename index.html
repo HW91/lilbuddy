@@ -1,194 +1,233 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Personal Assistant</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: sans-serif;
       margin: 0;
       padding: 0;
-      background-color: #e6f0fa;
+      background-color: #e8f0fa;
       color: #333;
       transition: background-color 0.3s, color 0.3s;
-    }.dark-mode {
-  background-color: #1a1a1a;
-  color: #f0f0f0;
-}
+    }
 
-.container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 10px;
-}
+    .dark-mode {
+      background-color: #1a1a1a;
+      color: #f0f0f0;
+    }
 
-.carousel {
-  display: flex;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  width: 100%;
-  max-width: 400px;
-  margin: 10px 0;
-}
+    .container {
+      max-width: 500px;
+      margin: auto;
+      padding: 16px;
+    }
 
-.carousel img {
-  scroll-snap-align: center;
-  width: 100px;
-  height: 100px;
-  margin: 0 10px;
-  opacity: 0.5;
-  transition: transform 0.3s, opacity 0.3s;
-}
+    h2 {
+      color: #2c72b4;
+    }
 
-.carousel img.active {
-  transform: scale(1.5);
-  opacity: 1;
-  width: 150px;
-  height: 150px;
-}
+    .carousel-container {
+      overflow-x: hidden;
+      display: flex;
+      justify-content: center;
+      padding: 20px 0;
+    }
 
-.section {
-  width: 100%;
-  max-width: 400px;
-  margin-bottom: 15px;
-  text-align: center;
-}
+    .carousel {
+      display: flex;
+      transition: transform 0.3s ease;
+    }
 
-input[type="text"] {
-  width: 80%;
-  padding: 8px;
-  font-size: 16px;
-}
+    .carousel img {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      margin: 0 5px;
+      opacity: 0.5;
+      transform: scale(0.8);
+      transition: transform 0.3s, opacity 0.3s;
+      border-radius: 10px;
+      flex-shrink: 0;
+    }
 
-button {
-  margin: 5px;
-  padding: 10px 15px;
-  background-color: #4a90e2;
-  border: none;
-  border-radius: 5px;
-  color: white;
-  font-size: 16px;
-  cursor: pointer;
-}
+    .carousel img.active {
+      width: 150px;
+      height: 150px;
+      opacity: 1;
+      transform: scale(1);
+    }
 
-button:hover {
-  background-color: #357ab8;
-}
+    .controls {
+      text-align: center;
+      margin-bottom: 16px;
+    }
 
-.settings {
-  background: #d6e9f8;
-  padding: 15px;
-  border-radius: 10px;
-}
+    textarea, select, input[type="number"] {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
 
-.dark-mode .settings {
-  background: #2c2c2c;
-}
+    button {
+      padding: 10px 16px;
+      margin: 6px 4px;
+      background-color: #2c72b4;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
 
-label, select, input[type="number"] {
-  display: block;
-  margin: 5px auto;
-  font-size: 16px;
-}
+    button:hover {
+      background-color: #1c5a94;
+    }
 
-@media (max-width: 600px) {
-  .carousel img {
-    width: 80px;
-    height: 80px;
-  }
-  .carousel img.active {
-    width: 120px;
-    height: 120px;
-  }
-}
+    .section {
+      margin-bottom: 24px;
+    }
 
+    @media (max-width: 600px) {
+      .carousel img {
+        margin: 0 3px;
+      }
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="carousel" id="assistantCarousel">
-      <img src="assistant1.png" alt="Assistant 1" />
-      <img src="assistant1.png" alt="Assistant 2" />
-      <img src="assistant1.png" alt="Assistant 3" class="active" />
-      <img src="assistant1.png" alt="Assistant 4" />
-      <img src="assistant1.png" alt="Assistant 5" />
-      <img src="assistant1.png" alt="Assistant 6" />
-    </div><div class="section">
-  <input type="text" id="speakInput" placeholder="Type something to say...">
-  <button onclick="speakTyped()">Speak</button>
-  <button onclick="startRecognition()">Speak to Assistant</button>
-  <div>
-    <button onclick="quickSpeak('Hello!')">Hello!</button>
-    <button onclick="quickSpeak('I need help.')">I need help.</button>
-    <button onclick="quickSpeak('Thank you.')">Thank you.</button>
+    <div class="carousel-container">
+      <div id="carousel" class="carousel">
+        <img src="assistant1.png" alt="Assistant 1">
+        <img src="assistant2.png" alt="Assistant 2">
+        <img src="assistant3.png" alt="Assistant 3">
+        <img src="assistant4.png" alt="Assistant 4">
+        <img src="assistant5.png" alt="Assistant 5">
+        <img src="assistant6.png" alt="Assistant 6">
+      </div>
+    </div>
+    <div class="controls">
+      <button onclick="prev()">◀️</button>
+      <button onclick="next()">▶️</button>
+    </div>
+
+    <div class="section">
+      <h2>Speak for Me</h2>
+      <textarea id="textToSpeak" rows="3" placeholder="Type here and press Speak"></textarea>
+      <button onclick="speakText()">Speak</button>
+    </div>
+
+    <div class="section">
+      <h2>Talk to Assistant</h2>
+      <button onclick="startListening()">Start Talking</button>
+      <p id="userSpeech"></p>
+      <p id="assistantReply"></p>
+    </div>
+
+    <div class="section">
+      <h2>Shortcut Buttons</h2>
+      <button onclick="speakShortcut('I need help')">I need help</button>
+      <button onclick="speakShortcut('Thank you')">Thank you</button>
+      <button onclick="speakShortcut('Please come here')">Please come here</button>
+    </div>
+
+    <div class="section">
+      <h2>Settings</h2>
+      <label>Conversation Times Per Day:</label>
+      <input type="number" id="dailyLimit" min="1" max="10" value="3"/>
+
+      <label>Time Window:</label>
+      <select id="timeWindow">
+        <option value="morning">Morning</option>
+        <option value="afternoon">Afternoon</option>
+        <option value="evening">Evening</option>
+      </select>
+
+      <label>Topics:</label>
+      <select id="topics" multiple>
+        <option value="news">News</option>
+        <option value="weather">Weather</option>
+        <option value="sports">Sports</option>
+        <option value="health">Health Tips</option>
+        <option value="jokes">Jokes</option>
+        <option value="music">Music</option>
+      </select>
+
+      <div style="margin-top:10px;">
+        <label>
+          <input type="checkbox" id="darkToggle" onchange="toggleDarkMode()"> Dark Mode
+        </label>
+      </div>
+    </div>
   </div>
-</div>
 
-<div class="section settings">
-  <label for="startTime">Start Time:</label>
-  <input type="time" id="startTime">
+  <script>
+    const images = document.querySelectorAll('#carousel img');
+    const carousel = document.getElementById('carousel');
+    let currentIndex = 2;
 
-  <label for="endTime">End Time:</label>
-  <input type="time" id="endTime">
+    function updateCarousel() {
+      images.forEach((img, i) => {
+        img.classList.remove('active');
+        if (i === currentIndex) img.classList.add('active');
+      });
+      const containerWidth = document.querySelector('.carousel-container').offsetWidth;
+      const offset = (images[0].clientWidth + 10) * currentIndex + 40;
+      const scrollTo = offset - containerWidth / 2 + 75;
+      carousel.style.transform = `translateX(-${scrollTo}px)`;
+    }
 
-  <label for="frequency">Conversations per day:</label>
-  <input type="number" id="frequency" min="1" max="10">
+    function next() {
+      currentIndex = (currentIndex + 1) % images.length;
+      updateCarousel();
+    }
 
-  <label for="topics">Preferred Topics (comma separated):</label>
-  <input type="text" id="topics">
+    function prev() {
+      currentIndex = (currentIndex - 1 + images.length) % images.length;
+      updateCarousel();
+    }
 
-  <button onclick="toggleDarkMode()">Toggle Dark Mode</button>
-</div>
-
-  </div>  <script>
-    let voices = ["Voice 1", "Voice 2", "Voice 3", "Voice 4", "Voice 5", "Voice 6"];
-
-    function speak(text) {
+    function speakText() {
+      const text = document.getElementById('textToSpeak').value;
       const utterance = new SpeechSynthesisUtterance(text);
       speechSynthesis.speak(utterance);
     }
 
-    function speakTyped() {
-      const text = document.getElementById("speakInput").value;
-      if (text.trim() !== "") speak(text);
-    }
-
-    function quickSpeak(text) {
-      speak(text);
-    }
-
-    function startRecognition() {
-      const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-      recognition.onresult = function (event) {
-        const spokenText = event.results[0][0].transcript;
-        speak("You said: " + spokenText);
-      };
-      recognition.start();
+    function speakShortcut(phrase) {
+      const utterance = new SpeechSynthesisUtterance(phrase);
+      speechSynthesis.speak(utterance);
     }
 
     function toggleDarkMode() {
-      document.body.classList.toggle("dark-mode");
+      document.body.classList.toggle('dark-mode');
     }
 
-    const carousel = document.getElementById("assistantCarousel");
-    const imgs = carousel.querySelectorAll("img");
-    carousel.scrollLeft = imgs[2].offsetLeft - carousel.offsetWidth / 2 + imgs[2].offsetWidth / 2;
+    function startListening() {
+      const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+      recognition.lang = 'en-US';
+      recognition.start();
+      recognition.onresult = function (event) {
+        const text = event.results[0][0].transcript;
+        document.getElementById('userSpeech').innerText = 'You said: ' + text;
+        fetchAssistantReply(text);
+      };
+    }
 
-    carousel.addEventListener("scroll", () => {
-      let center = carousel.scrollLeft + carousel.offsetWidth / 2;
-      let closestImg = null;
-      let closestDist = Infinity;
-      imgs.forEach((img) => {
-        let imgCenter = img.offsetLeft + img.offsetWidth / 2;
-        let dist = Math.abs(center - imgCenter);
-        if (dist < closestDist) {
-          closestDist = dist;
-          closestImg = img;
-        }
-      });
-      imgs.forEach((img) => img.classList.remove("active"));
-      if (closestImg) closestImg.classList.add("active");
-    });
-  </script></body>
+    function fetchAssistantReply(userInput) {
+      // Replace this placeholder with your Make.com webhook or logic
+      const reply = "This is a sample assistant reply to: " + userInput;
+      document.getElementById('assistantReply').innerText = reply;
+      const utterance = new SpeechSynthesisUtterance(reply);
+      speechSynthesis.speak(utterance);
+    }
+
+    window.onload = () => {
+      updateCarousel();
+    };
+  </script>
+</body>
 </html>
