@@ -38,7 +38,7 @@
 
     .carousel {
       display: flex;
-      transition: transform 0.3s ease;
+      justify-content: center;
     }
 
     .carousel img {
@@ -167,18 +167,13 @@
 
   <script>
     const images = document.querySelectorAll('#carousel img');
-    const carousel = document.getElementById('carousel');
     let currentIndex = 2;
 
     function updateCarousel() {
       images.forEach((img, i) => {
-        img.classList.remove('active');
-        if (i === currentIndex) img.classList.add('active');
+        img.classList.toggle('active', i === currentIndex);
       });
-      const containerWidth = document.querySelector('.carousel-container').offsetWidth;
-      const offset = (images[0].clientWidth + 10) * currentIndex + 40;
-      const scrollTo = offset - containerWidth / 2 + 75;
-      carousel.style.transform = `translateX(-${scrollTo}px)`;
+      // Removed transform-based centering logic
     }
 
     function next() {
@@ -218,7 +213,6 @@
     }
 
     function fetchAssistantReply(userInput) {
-      // Replace this placeholder with your Make.com webhook or logic
       const reply = "This is a sample assistant reply to: " + userInput;
       document.getElementById('assistantReply').innerText = reply;
       const utterance = new SpeechSynthesisUtterance(reply);
