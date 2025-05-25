@@ -1,55 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Personal Assistant</title>
   <style>
-    :root {
-      --light-bg: #e6f0fa;
-      --light-card: #ffffff;
-      --light-text: #003366;
-      --dark-bg: #1a1a2e;
-      --dark-card: #16213e;
-      --dark-text: #e0e0e0;
-      --button: #4a90e2;
-      --button-hover: #357abd;
-    }
-
     body {
       font-family: sans-serif;
       margin: 0;
       padding: 0;
-      background-color: var(--light-bg);
-      color: var(--light-text);
+      background-color: #e8f0fa;
+      color: #333;
       transition: background-color 0.3s, color 0.3s;
     }
 
     .dark-mode {
-      background-color: var(--dark-bg);
-      color: var(--dark-text);
+      background-color: #1a1a1a;
+      color: #f0f0f0;
+    }
+
+    .container {
+      max-width: 500px;
+      margin: auto;
+      padding: 16px;
+    }
+
+    h2 {
+      color: #2c72b4;
     }
 
     .carousel-container {
-      max-width: 600px;
-      margin: 30px auto 10px;
-      overflow: hidden;
+      overflow-x: hidden;
+      display: flex;
+      justify-content: center;
+      padding: 20px 0;
     }
 
     .carousel {
       display: flex;
-      transition: transform 0.3s ease-in-out;
+      transition: transform 0.3s ease;
     }
 
     .carousel img {
-      width: 100px;
-      height: 100px;
+      width: 80px;
+      height: 80px;
       object-fit: cover;
-      margin: 0 10px;
+      margin: 0 5px;
       opacity: 0.5;
       transform: scale(0.8);
       transition: transform 0.3s, opacity 0.3s;
-      border-radius: 12px;
+      border-radius: 10px;
+      flex-shrink: 0;
     }
 
     .carousel img.active {
@@ -59,135 +60,125 @@
       transform: scale(1);
     }
 
-    .controls, .info, .settings, .communicate {
-      max-width: 600px;
-      margin: 15px auto;
-      padding: 20px;
-      border-radius: 10px;
-      background-color: var(--light-card);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    .controls {
+      text-align: center;
+      margin-bottom: 16px;
     }
 
-    .dark-mode .controls,
-    .dark-mode .settings,
-    .dark-mode .info,
-    .dark-mode .communicate {
-      background-color: var(--dark-card);
+    textarea, select, input[type="number"] {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 6px;
+      border: 1px solid #ccc;
     }
 
     button {
-      background-color: var(--button);
+      padding: 10px 16px;
+      margin: 6px 4px;
+      background-color: #2c72b4;
       color: white;
       border: none;
-      padding: 10px 15px;
-      margin: 5px;
       border-radius: 6px;
       cursor: pointer;
     }
 
     button:hover {
-      background-color: var(--button-hover);
+      background-color: #1c5a94;
     }
 
-    input, select {
-      width: 100%;
-      padding: 10px;
-      margin: 10px 0;
-      border-radius: 6px;
-      border: 1px solid #ccc;
+    .section {
+      margin-bottom: 24px;
     }
 
-    textarea {
-      width: 100%;
-      padding: 10px;
-      margin-top: 10px;
-      border-radius: 6px;
-      resize: vertical;
+    @media (max-width: 600px) {
+      .carousel img {
+        margin: 0 3px;
+      }
     }
   </style>
 </head>
 <body>
-
-  <div class="carousel-container">
-    <div id="carousel" class="carousel">
-      <img src="assistant1.png" alt="Assistant 1">
-      <img src="assistant1.png" alt="Assistant 2">
-      <img src="assistant1.png" alt="Assistant 3">
-      <img src="assistant1.png" alt="Assistant 4">
-      <img src="assistant1.png" alt="Assistant 5">
-      <img src="assistant1.png" alt="Assistant 6">
+  <div class="container">
+    <div class="carousel-container">
+      <div id="carousel" class="carousel">
+        <img src="assistant1.png" alt="Assistant 1">
+        <img src="assistant2.png" alt="Assistant 2">
+        <img src="assistant3.png" alt="Assistant 3">
+        <img src="assistant4.png" alt="Assistant 4">
+        <img src="assistant5.png" alt="Assistant 5">
+        <img src="assistant6.png" alt="Assistant 6">
+      </div>
     </div>
-  </div>
+    <div class="controls">
+      <button onclick="prev()">◀️</button>
+      <button onclick="next()">▶️</button>
+    </div>
 
-  <div class="controls" style="text-align:center;">
-    <button onclick="prev()">◀️</button>
-    <button onclick="next()">▶️</button>
-    <button onclick="toggleDarkMode()">Toggle Dark/Light Mode</button>
-  </div>
+    <div class="section">
+      <h2>Speak for Me</h2>
+      <textarea id="textToSpeak" rows="3" placeholder="Type here and press Speak"></textarea>
+      <button onclick="speakText()">Speak</button>
+    </div>
 
-  <div class="info" style="text-align:center;">
-    <div id="nameDisplay"></div>
-    <div id="voiceDisplay"></div>
-  </div>
+    <div class="section">
+      <h2>Talk to Assistant</h2>
+      <button onclick="startListening()">Start Talking</button>
+      <p id="userSpeech"></p>
+      <p id="assistantReply"></p>
+    </div>
 
-  <div class="communicate">
-    <h3>Speak for Me</h3>
-    <textarea id="speakText" rows="3" placeholder="Type something to say..."></textarea>
-    <button onclick="speakTypedText()">Speak</button>
+    <div class="section">
+      <h2>Shortcut Buttons</h2>
+      <button onclick="speakShortcut('I need help')">I need help</button>
+      <button onclick="speakShortcut('Thank you')">Thank you</button>
+      <button onclick="speakShortcut('Please come here')">Please come here</button>
+    </div>
 
-    <h3>Talk to Assistant</h3>
-    <button onclick="startListening()">Press to Speak</button>
-    <p id="speechResult" style="margin-top:10px; font-weight:bold;"></p>
+    <div class="section">
+      <h2>Settings</h2>
+      <label>Conversation Times Per Day:</label>
+      <input type="number" id="dailyLimit" min="1" max="10" value="3"/>
 
-    <h3>Quick Speak Buttons</h3>
-    <button onclick="speakQuick('I need help, please.')">Help</button>
-    <button onclick="speakQuick('I’m hungry.')">Hungry</button>
-    <button onclick="speakQuick('Can someone take me outside?')">Go Outside</button>
-  </div>
+      <label>Time Window:</label>
+      <select id="timeWindow">
+        <option value="morning">Morning</option>
+        <option value="afternoon">Afternoon</option>
+        <option value="evening">Evening</option>
+      </select>
 
-  <div class="settings">
-    <label>How many times per day should the assistant start a conversation?</label>
-    <select id="conversationFrequency">
-      <option>1 time</option>
-      <option>2 times</option>
-      <option>3 times</option>
-      <option>4 times</option>
-    </select>
+      <label>Topics:</label>
+      <select id="topics" multiple>
+        <option value="news">News</option>
+        <option value="weather">Weather</option>
+        <option value="sports">Sports</option>
+        <option value="health">Health Tips</option>
+        <option value="jokes">Jokes</option>
+        <option value="music">Music</option>
+      </select>
 
-    <label>Preferred communication time window:</label>
-    <input type="text" placeholder="e.g., 9am - 6pm"/>
-
-    <label>Pick conversation topics:</label>
-    <input type="text" placeholder="e.g., news, weather, jokes"/>
+      <div style="margin-top:10px;">
+        <label>
+          <input type="checkbox" id="darkToggle" onchange="toggleDarkMode()"> Dark Mode
+        </label>
+      </div>
+    </div>
   </div>
 
   <script>
     const images = document.querySelectorAll('#carousel img');
     const carousel = document.getElementById('carousel');
-    const nameDisplay = document.getElementById('nameDisplay');
-    const voiceDisplay = document.getElementById('voiceDisplay');
-
-    const assistants = [
-      { name: "Ava", voice: "en-US-JennyNeural" },
-      { name: "Leo", voice: "en-US-GuyNeural" },
-      { name: "Maya", voice: "en-GB-LibbyNeural" },
-      { name: "Zane", voice: "en-AU-WilliamNeural" },
-      { name: "Nina", voice: "en-IN-NeerjaNeural" },
-      { name: "Kai", voice: "en-NZ-MitchellNeural" }
-    ];
-
-    let currentIndex = 2; // Default to 3rd image
+    let currentIndex = 2;
 
     function updateCarousel() {
       images.forEach((img, i) => {
         img.classList.remove('active');
         if (i === currentIndex) img.classList.add('active');
       });
-      const offset = (images[0].clientWidth + 20) * currentIndex;
-      carousel.style.transform = `translateX(-${offset - 150}px)`;
-
-      nameDisplay.textContent = `Name: ${assistants[currentIndex].name}`;
-      voiceDisplay.textContent = `Voice: ${assistants[currentIndex].voice}`;
+      const containerWidth = document.querySelector('.carousel-container').offsetWidth;
+      const offset = (images[0].clientWidth + 10) * currentIndex + 40;
+      const scrollTo = offset - containerWidth / 2 + 75;
+      carousel.style.transform = `translateX(-${scrollTo}px)`;
     }
 
     function next() {
@@ -200,44 +191,42 @@
       updateCarousel();
     }
 
+    function speakText() {
+      const text = document.getElementById('textToSpeak').value;
+      const utterance = new SpeechSynthesisUtterance(text);
+      speechSynthesis.speak(utterance);
+    }
+
+    function speakShortcut(phrase) {
+      const utterance = new SpeechSynthesisUtterance(phrase);
+      speechSynthesis.speak(utterance);
+    }
+
     function toggleDarkMode() {
       document.body.classList.toggle('dark-mode');
     }
 
-    function speakTypedText() {
-      const text = document.getElementById('speakText').value;
-      if (text.trim() === '') return;
-      const msg = new SpeechSynthesisUtterance(text);
-      msg.voice = speechSynthesis.getVoices().find(v => v.name.includes(assistants[currentIndex].voice));
-      window.speechSynthesis.speak(msg);
-    }
-
-    function speakQuick(phrase) {
-      const msg = new SpeechSynthesisUtterance(phrase);
-      msg.voice = speechSynthesis.getVoices().find(v => v.name.includes(assistants[currentIndex].voice));
-      window.speechSynthesis.speak(msg);
-    }
-
     function startListening() {
-      const output = document.getElementById('speechResult');
       const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
       recognition.lang = 'en-US';
-      recognition.interimResults = false;
-      recognition.maxAlternatives = 1;
       recognition.start();
-
-      recognition.onresult = (event) => {
-        const speechText = event.results[0][0].transcript;
-        output.textContent = "You said: " + speechText;
-        const reply = new SpeechSynthesisUtterance("You said " + speechText);
-        reply.voice = speechSynthesis.getVoices().find(v => v.name.includes(assistants[currentIndex].voice));
-        window.speechSynthesis.speak(reply);
+      recognition.onresult = function (event) {
+        const text = event.results[0][0].transcript;
+        document.getElementById('userSpeech').innerText = 'You said: ' + text;
+        fetchAssistantReply(text);
       };
+    }
+
+    function fetchAssistantReply(userInput) {
+      // Replace this placeholder with your Make.com webhook or logic
+      const reply = "This is a sample assistant reply to: " + userInput;
+      document.getElementById('assistantReply').innerText = reply;
+      const utterance = new SpeechSynthesisUtterance(reply);
+      speechSynthesis.speak(utterance);
     }
 
     window.onload = () => {
       updateCarousel();
-      speechSynthesis.onvoiceschanged = updateCarousel;
     };
   </script>
 </body>
