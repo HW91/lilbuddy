@@ -5,65 +5,168 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Personal Assistant</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 20px; }
-    #assistant-image { width: 100px; height: 100px; border-radius: 10px; object-fit: cover; }
-    .section { margin-bottom: 20px; }
-    .section label { display: block; margin-bottom: 5px; }
-    .section input, .section select, .section button, .section textarea { width: 100%; padding: 8px; margin-bottom: 10px; }
-    .shortcuts button { padding: 10px; margin: 5px; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f4f7fa;
+      color: #333;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: auto;
+      padding: 20px;
+      background: white;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      border-radius: 12px;
+      margin-top: 30px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #4a90e2;
+    }
+
+    .section {
+      margin-bottom: 25px;
+    }
+
+    .section label {
+      font-weight: bold;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .section input,
+    .section select,
+    .section button,
+    .section textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 6px;
+      margin-bottom: 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    textarea {
+      resize: vertical;
+    }
+
+    #assistant-image {
+      display: block;
+      margin: 0 auto 10px auto;
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 50%;
+      border: 2px solid #4a90e2;
+    }
+
+    .shortcuts button {
+      padding: 10px 14px;
+      margin: 6px 6px 0 0;
+      border: none;
+      border-radius: 6px;
+      background-color: #4a90e2;
+      color: white;
+      cursor: pointer;
+      font-size: 15px;
+    }
+
+    .shortcuts button:hover {
+      background-color: #357ab8;
+    }
+
+    #send-text {
+      background-color: #4caf50;
+      color: white;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    #send-text:hover {
+      background-color: #3e8e41;
+    }
+
+    #save-preferences {
+      background-color: #ff9800;
+      color: white;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    #save-preferences:hover {
+      background-color: #e68900;
+    }
+
+    audio {
+      margin-top: 15px;
+      width: 100%;
+    }
   </style>
 </head>
 <body>
-  <div class="section">
-    <img id="assistant-image" src="assistant.png" alt="Assistant">
-    <label for="image-upload">Change Assistant Image:</label>
-    <input type="file" id="image-upload" accept="image/*">
-  </div>
+  <div class="container">
+    <h1>Personal Assistant</h1>
 
-  <div class="section">
-    <label for="text-input">Type a message:</label>
-    <textarea id="text-input" rows="3" placeholder="Type here..."></textarea>
-    <button id="send-text">Speak</button>
-  </div>
+    <div class="section">
+      <img id="assistant-image" src="assistant.png" alt="Assistant Image">
+      <label for="image-upload">Change Assistant Image:</label>
+      <input type="file" id="image-upload" accept="image/*">
+    </div>
 
-  <div class="section shortcuts">
-    <label>Shortcut Buttons:</label>
-    <button class="shortcut" data-text="Call nurse">Call nurse</button>
-    <button class="shortcut" data-text="I need help">I need help</button>
-    <button class="shortcut" data-text="What’s the weather?">What’s the weather?</button>
-  </div>
+    <div class="section">
+      <label for="text-input">Type a message:</label>
+      <textarea id="text-input" rows="3" placeholder="Type here..."></textarea>
+      <button id="send-text">Speak</button>
+    </div>
 
-  <div class="section">
-    <label for="voice-select">Choose voice:</label>
-    <select id="voice-select">
-      <option value="">--Select Voice--</option>
-      <option value="voice1">Voice Option 1</option>
-      <option value="voice2">Voice Option 2</option>
-      <option value="voice3">Voice Option 3</option>
-    </select>
-  </div>
+    <div class="section shortcuts">
+      <label>Shortcut Buttons:</label>
+      <button class="shortcut" data-text="Call nurse">Call nurse</button>
+      <button class="shortcut" data-text="I need help">I need help</button>
+      <button class="shortcut" data-text="What’s the weather?">What’s the weather?</button>
+    </div>
 
-  <div class="section">
-    <label for="topics-select">Topics for Initiated Conversations:</label>
-    <select id="topics-select" multiple>
-      <option value="health">Health</option>
-      <option value="news">News</option>
-      <option value="weather">Weather</option>
-      <option value="reminders">Reminders</option>
-    </select>
-  </div>
+    <div class="section">
+      <label for="voice-select">Choose voice:</label>
+      <select id="voice-select">
+        <option value="">--Select Voice--</option>
+        <option value="voice1">Voice Option 1</option>
+        <option value="voice2">Voice Option 2</option>
+        <option value="voice3">Voice Option 3</option>
+      </select>
+    </div>
 
-  <div class="section">
-    <label for="daily-frequency">How many times per day to initiate:</label>
-    <input type="number" id="daily-frequency" min="1" max="24" value="1">
-    <label for="time-window-start">Start time (HH:MM):</label>
-    <input type="time" id="time-window-start" value="09:00">
-    <label for="time-window-end">End time (HH:MM):</label>
-    <input type="time" id="time-window-end" value="17:00">
-    <button id="save-preferences">Save Preferences</button>
-  </div>
+    <div class="section">
+      <label for="topics-select">Topics for Initiated Conversations:</label>
+      <select id="topics-select" multiple>
+        <option value="health">Health</option>
+        <option value="news">News</option>
+        <option value="weather">Weather</option>
+        <option value="reminders">Reminders</option>
+      </select>
+    </div>
 
-  <audio id="audio-player" controls style="display:none;"></audio>
+    <div class="section">
+      <label for="daily-frequency">How many times per day to initiate:</label>
+      <input type="number" id="daily-frequency" min="1" max="24" value="1">
+      <label for="time-window-start">Start time:</label>
+      <input type="time" id="time-window-start" value="09:00">
+      <label for="time-window-end">End time:</label>
+      <input type="time" id="time-window-end" value="17:00">
+      <button id="save-preferences">Save Preferences</button>
+    </div>
+
+    <audio id="audio-player" controls style="display:none;"></audio>
+  </div>
 
   <script>
     const WEBHOOK_URL = 'YOUR_WEBHOOK_URL';
