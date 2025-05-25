@@ -30,34 +30,35 @@
     }
 
     .carousel-container {
-      overflow-x: hidden;
-      display: flex;
-      justify-content: center;
-      padding: 20px 0;
+      overflow: hidden;
+      position: relative;
+      width: 100%;
+      padding: 40px 0;
     }
 
     .carousel {
       display: flex;
-      justify-content: center;
+      transition: transform 0.5s ease;
+      will-change: transform;
     }
 
     .carousel img {
-      width: 150px;
-      height: 150px;
+      width: 300px;
+      height: 300px;
       object-fit: cover;
-      margin: 0 5px;
+      margin: 0 -135px;
       opacity: 0.5;
       transform: scale(0.8);
       transition: transform 0.3s, opacity 0.3s;
       border-radius: 10px;
       flex-shrink: 0;
+      pointer-events: none;
     }
 
     .carousel img.active {
-      width: 300px;
-      height: 300px;
       opacity: 1;
       transform: scale(1);
+      pointer-events: auto;
     }
 
     .controls {
@@ -93,7 +94,9 @@
 
     @media (max-width: 600px) {
       .carousel img {
-        margin: 0 3px;
+        width: 200px;
+        height: 200px;
+        margin: 0 -90px;
       }
     }
   </style>
@@ -102,12 +105,15 @@
   <div class="container">
     <div class="carousel-container">
       <div id="carousel" class="carousel">
-        <img src="assistant11.png" alt="Assistant 1">
+        <!-- Duplicated for infinite loop effect -->
+        <img src="assistant6.png" alt="Assistant 6">
+        <img src="assistant1.png" alt="Assistant 1">
         <img src="assistant2.png" alt="Assistant 2">
         <img src="assistant3.png" alt="Assistant 3">
         <img src="assistant4.png" alt="Assistant 4">
         <img src="assistant5.png" alt="Assistant 5">
         <img src="assistant6.png" alt="Assistant 6">
+        <img src="assistant1.png" alt="Assistant 1">
       </div>
     </div>
     <div class="controls">
@@ -166,24 +172,59 @@
   </div>
 
   <script>
-    const images = document.querySelectorAll('#carousel img');
-    let currentIndex = 0;
+    const carousel = document.getElementById('carousel');
+    const images = carousel.querySelectorAll('img');
+    const visibleCount = images.length;
+    let currentIndex = 1;
+    let transitioning = false;
 
     function updateCarousel() {
       images.forEach((img, i) => {
-        img.classList.toggle('active', i === currentIndex);
+        img.classList.remove('active');
+        if (i === currentIndex) img.classList.add('active');
       });
-      // Removed transform-based centering logic
+      const offset = images[0].clientWidth * currentIndex;
+      carousel.style.transform = `translateX(calc(50% - ${offset}px))`;
     }
 
     function next() {
-      currentIndex = (currentIndex + 1) % images.length;
+      if (transitioning) return;
+      transitioning = true;
+      currentIndex++;
       updateCarousel();
+      if (currentIndex === visibleCount - 1) {
+        setTimeout(() => {
+          carousel.style.transition = 'none';
+          currentIndex = 1;
+          updateCarousel();
+          requestAnimationFrame(() => {
+            carousel.style.transition = 'transform 0.5s ease';
+            transitioning = false;
+          });
+        }, 500);
+      } else {
+        setTimeout(() => (transitioning = false), 500);
+      }
     }
 
     function prev() {
-      currentIndex = (currentIndex - 1 + images.length) % images.length;
+      if (transitioning) return;
+      transitioning = true;
+      currentIndex--;
       updateCarousel();
+      if (currentIndex === 0) {
+        setTimeout(() => {
+          carousel.style.transition = 'none';
+          currentIndex = visibleCount - 2;
+          updateCarousel();
+          requestAnimationFrame(() => {
+            carousel.style.transition = 'transform 0.5s ease';
+            transitioning = false;
+          });
+        }, 500);
+      } else {
+        setTimeout(() => (transitioning = false), 500);
+      }
     }
 
     function speakText() {
@@ -220,6 +261,7 @@
     }
 
     window.onload = () => {
+      carousel.style.transition = 'transform 0.5s ease';
       updateCarousel();
     };
   </script>
