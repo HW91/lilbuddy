@@ -30,40 +30,49 @@
     }
 
     .carousel-container {
-      overflow: hidden;
       position: relative;
       width: 100%;
-      padding: 40px 0;
-    }
-
-    .carousel {
+      height: 320px;
       display: flex;
-      transition: transform 0.5s ease;
-      will-change: transform;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      margin-bottom: 20px;
     }
 
     .carousel img {
+      display: none;
       width: 300px;
       height: 300px;
       object-fit: cover;
-      margin: 0 -135px;
-      opacity: 0.5;
-      transform: scale(0.8);
-      transition: transform 0.3s, opacity 0.3s;
       border-radius: 10px;
-      flex-shrink: 0;
-      pointer-events: none;
     }
 
     .carousel img.active {
-      opacity: 1;
-      transform: scale(1);
-      pointer-events: auto;
+      display: block;
     }
 
-    .controls {
-      text-align: center;
-      margin-bottom: 16px;
+    .arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #2c72b4;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      font-size: 20px;
+      cursor: pointer;
+      z-index: 1;
+    }
+
+    .arrow.left {
+      left: 10px;
+    }
+
+    .arrow.right {
+      right: 10px;
     }
 
     textarea, select, input[type="number"] {
@@ -91,34 +100,21 @@
     .section {
       margin-bottom: 24px;
     }
-
-    @media (max-width: 600px) {
-      .carousel img {
-        width: 200px;
-        height: 200px;
-        margin: 0 -90px;
-      }
-    }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="carousel-container">
+      <button class="arrow left" onclick="prev()">◀</button>
       <div id="carousel" class="carousel">
-        <!-- Duplicated for infinite loop effect -->
-        <img src="assistant6.png" alt="Assistant 6">
         <img src="assistant1.png" alt="Assistant 1">
         <img src="assistant2.png" alt="Assistant 2">
         <img src="assistant3.png" alt="Assistant 3">
         <img src="assistant4.png" alt="Assistant 4">
         <img src="assistant5.png" alt="Assistant 5">
         <img src="assistant6.png" alt="Assistant 6">
-        <img src="assistant1.png" alt="Assistant 1">
       </div>
-    </div>
-    <div class="controls">
-      <button onclick="prev()">◀️</button>
-      <button onclick="next()">▶️</button>
+      <button class="arrow right" onclick="next()">▶</button>
     </div>
 
     <div class="section">
@@ -172,59 +168,24 @@
   </div>
 
   <script>
-    const carousel = document.getElementById('carousel');
-    const images = carousel.querySelectorAll('img');
-    const visibleCount = images.length;
-    let currentIndex = 1;
-    let transitioning = false;
+    const images = document.querySelectorAll('.carousel img');
+    let currentIndex = 0;
 
     function updateCarousel() {
       images.forEach((img, i) => {
         img.classList.remove('active');
         if (i === currentIndex) img.classList.add('active');
       });
-      const offset = images[0].clientWidth * currentIndex;
-      carousel.style.transform = `translateX(calc(50% - ${offset}px))`;
     }
 
     function next() {
-      if (transitioning) return;
-      transitioning = true;
-      currentIndex++;
+      currentIndex = (currentIndex + 1) % images.length;
       updateCarousel();
-      if (currentIndex === visibleCount - 1) {
-        setTimeout(() => {
-          carousel.style.transition = 'none';
-          currentIndex = 1;
-          updateCarousel();
-          requestAnimationFrame(() => {
-            carousel.style.transition = 'transform 0.5s ease';
-            transitioning = false;
-          });
-        }, 500);
-      } else {
-        setTimeout(() => (transitioning = false), 500);
-      }
     }
 
     function prev() {
-      if (transitioning) return;
-      transitioning = true;
-      currentIndex--;
+      currentIndex = (currentIndex - 1 + images.length) % images.length;
       updateCarousel();
-      if (currentIndex === 0) {
-        setTimeout(() => {
-          carousel.style.transition = 'none';
-          currentIndex = visibleCount - 2;
-          updateCarousel();
-          requestAnimationFrame(() => {
-            carousel.style.transition = 'transform 0.5s ease';
-            transitioning = false;
-          });
-        }, 500);
-      } else {
-        setTimeout(() => (transitioning = false), 500);
-      }
     }
 
     function speakText() {
@@ -260,10 +221,7 @@
       speechSynthesis.speak(utterance);
     }
 
-    window.onload = () => {
-      carousel.style.transition = 'transform 0.5s ease';
-      updateCarousel();
-    };
+    window.onload = updateCarousel;
   </script>
 </body>
 </html>
