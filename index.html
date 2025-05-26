@@ -117,7 +117,6 @@
       border-radius: 6px;
       border: 1px solid #ccc;
       box-sizing: border-box;
-      /* font-size will be set via JS */
     }
     button {
       padding: 10px 16px;
@@ -127,7 +126,6 @@
       border: none;
       border-radius: 6px;
       cursor: pointer;
-      /* font-size will be set via JS */
     }
     button:hover {
       background-color: #1c5a94;
@@ -174,7 +172,6 @@
       margin: 8px auto;
       display: block;
     }
-    /* Slider style (basic) */
     .settings input[type="range"] {
       width: 90%;
       display: block;
@@ -202,7 +199,6 @@
       <div id="tab-speak" class="tab" onclick="switchTab('speak')">Speak for Me</div>
     </div>
 
-    <!-- Talk to Assistant Tab -->
     <div id="chat" class="tab-content active">
       <div class="section">
         <input
@@ -235,7 +231,6 @@
           <option value="weather">Weather</option>
         </select>
 
-        <!-- Font Size Slider -->
         <label for="fontSizeSliderChat">Font Size:</label>
         <input
           type="range"
@@ -258,7 +253,6 @@
       </div>
     </div>
 
-    <!-- Speak for Me Tab -->
     <div id="speak" class="tab-content">
       <div class="section">
         <textarea
@@ -291,7 +285,6 @@
           <option value="weather">Weather</option>
         </select>
 
-        <!-- Font Size Slider -->
         <label for="fontSizeSliderSpeak">Font Size:</label>
         <input
           type="range"
@@ -316,6 +309,17 @@
   </div>
 
   <script>
+    const voiceIds = [
+      "2qfp6zPuviqeCOZIE9RZ",
+      "csV9r3rRz8U2abspFcXE",
+      "Z3R5wn05IrDiVCyEkUrK",
+      "yHx9q5iHmtVGKONrqrIf",
+      "Xb3zeLrTi6F4ziIcXdwk",
+      "1SM7GgM6IMuvQlz2BwM3"
+    ];
+
+    const webhookURL = "https://hook.make.com/your-webhook-id";
+
     const images = document.querySelectorAll('.carousel img');
     let currentIndex = 0;
 
@@ -427,10 +431,34 @@
     }
 
     function fetchAssistantReply(userInput) {
-      const reply = "This is a sample assistant reply to: " + userInput;
-      addChatMessage('assistant', reply);
-      const utterance = new SpeechSynthesisUtterance(reply);
-      speechSynthesis.speak(utterance);
+      const voice_id = voiceIds[currentIndex];
+      fetch(webhookURL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          message: userInput,
+          voice_id: voice_id
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        const replyText = data.reply || "No reply received";
+        const audioUrl = data.audio_url;
+        addChatMessage('assistant', replyText);
+        if (audioUrl) {
+          const audio = new Audio(audioUrl);
+          audio.play();
+        }
+      })
+      .catch(err => {
+        console.error('Error calling webhook:', err);
+        const fallbackReply = "Sorry, something went wrong.";
+        addChatMessage('assistant', fallbackReply);
+        const utterance = new SpeechSynthesisUtterance(fallbackReply);
+        speechSynthesis.speak(utterance);
+      });
     }
 
     function loadSettings() {
@@ -496,7 +524,6 @@
     }
 
     function handleFontSizeChange(size) {
-      // Copy value to both sliders
       document.getElementById('fontSizeSliderChat').value = size;
       document.getElementById('fontSizeSliderSpeak').value = size;
       updateFontSize(size);
