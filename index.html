@@ -130,14 +130,15 @@
     .section {
       margin-bottom: 24px;
     }
-    .chat-history {
-      max-height: 300px;
+    .chat-history, .speak-history {
+      max-height: 200px;
       overflow-y: auto;
       border: 1px solid #ccc;
       border-radius: 6px;
       padding: 10px;
       background-color: #f9f9f9;
-      margin-top: 10px;
+      margin: 8px auto 0;
+      width: 90%;
     }
     .message.user {
       text-align: right;
@@ -192,6 +193,7 @@
     <div id="speak" class="tab-content">
       <div class="section">
         <textarea id="textToSpeak" rows="3" placeholder="Type here and press Enter to speak" onkeydown="if(event.key==='Enter' && !event.shiftKey){ event.preventDefault(); speakText(); }"></textarea>
+        <div id="speakHistory" class="speak-history"></div>
       </div>
     </div>
 
@@ -251,8 +253,10 @@
     function speakText() {
       const text = document.getElementById('textToSpeak').value.trim();
       if (!text) return;
+      addSpeakMessage(text);
       const utterance = new SpeechSynthesisUtterance(text);
       speechSynthesis.speak(utterance);
+      document.getElementById('textToSpeak').value = '';
     }
     function speakShortcut(phrase) {
       const utterance = new SpeechSynthesisUtterance(phrase);
@@ -263,15 +267,22 @@
     }
 
     let chatHistoryArr = [];
+    let speakHistoryArr = [];
+
     function loadHistory() {
-      const stored = localStorage.getItem('chatHistory');
-      if (stored) chatHistoryArr = JSON.parse(stored);
-      renderHistory();
+      const storedChat = localStorage.getItem('chatHistory');
+      if (storedChat) chatHistoryArr = JSON.parse(storedChat);
+      renderChatHistory();
+
+      const storedSpeak = localStorage.getItem('speakHistory');
+      if (storedSpeak) speakHistoryArr = JSON.parse(storedSpeak);
+      renderSpeakHistory();
     }
     function saveHistory() {
       localStorage.setItem('chatHistory', JSON.stringify(chatHistoryArr.slice(-10)));
+      localStorage.setItem('speakHistory', JSON.stringify(speakHistoryArr.slice(-10)));
     }
-    function renderHistory() {
+    function renderChatHistory() {
       const container = document.getElementById('chatHistory');
       container.innerHTML = '';
       chatHistoryArr.slice(-10).forEach(msg => {
@@ -284,23 +295,42 @@
       });
       container.scrollTop = container.scrollHeight;
     }
+    function renderSpeakHistory() {
+      const container = document.getElementById('speakHistory');
+      container.innerHTML = '';
+      speakHistoryArr.slice(-10).forEach(text => {
+        const div = document.createElement('div');
+        div.classList.add('message', 'user');
+        const span = document.createElement('span');
+        span.innerText = text;
+        div.appendChild(span);
+        container.appendChild(div);
+      });
+      container.scrollTop = container.scrollHeight;
+    }
     function sendMessage() {
       const input = document.getElementById('userInput');
       const text = input.value.trim();
       if (!text) return;
-      addMessage('user', text);
+      addChatMessage('user', text);
       input.value = '';
       fetchAssistantReply(text);
     }
-    function addMessage(sender, text) {
+    function addChatMessage(sender, text) {
       chatHistoryArr.push({ sender, text });
       if (chatHistoryArr.length > 10) chatHistoryArr = chatHistoryArr.slice(-10);
       saveHistory();
-      renderHistory();
+      renderChatHistory();
+    }
+    function addSpeakMessage(text) {
+      speakHistoryArr.push(text);
+      if (speakHistoryArr.length > 10) speakHistoryArr = speakHistoryArr.slice(-10);
+      saveHistory();
+      renderSpeakHistory();
     }
     function fetchAssistantReply(userInput) {
       const reply = "This is a sample assistant reply to: " + userInput;
-      addMessage('assistant', reply);
+      addChatMessage('assistant', reply);
       const utterance = new SpeechSynthesisUtterance(reply);
       speechSynthesis.speak(utterance);
     }
