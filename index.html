@@ -462,7 +462,7 @@
 
       try {
         // Call your webhook API with message and selected voice ID
-        const response = await fetch('https://hook.us1.make.com/zn2squqdln25x3tfjknfdopjb4hrxs2x', {
+        const response = await fetch('https://your-webhook-endpoint', {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({
