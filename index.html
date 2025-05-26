@@ -15,7 +15,7 @@
     }
     .dark-mode {
       background-color: #1a1a1a;
-      color: #1a1a1a;
+      color: #f0f0f0;
     }
     .container {
       max-width: 500px;
@@ -117,6 +117,7 @@
       border-radius: 6px;
       border: 1px solid #ccc;
       box-sizing: border-box;
+      /* font-size will be set via JS */
     }
     button {
       padding: 10px 16px;
@@ -126,6 +127,7 @@
       border: none;
       border-radius: 6px;
       cursor: pointer;
+      /* font-size will be set via JS */
     }
     button:hover {
       background-color: #1c5a94;
@@ -171,6 +173,12 @@
       width: 90%;
       margin: 8px auto;
       display: block;
+    }
+    /* Slider style (basic) */
+    .settings input[type="range"] {
+      width: 90%;
+      display: block;
+      margin: 8px auto;
     }
   </style>
 </head>
@@ -226,6 +234,18 @@
           <option value="sports">Sports</option>
           <option value="weather">Weather</option>
         </select>
+
+        <!-- Font Size Slider -->
+        <label for="fontSizeSliderChat">Font Size:</label>
+        <input
+          type="range"
+          id="fontSizeSliderChat"
+          min="12"
+          max="24"
+          value="16"
+          oninput="updateFontSize(this.value)"
+        >
+
         <div style="margin-top:10px; text-align: center;">
           <label>
             <input
@@ -270,6 +290,18 @@
           <option value="sports">Sports</option>
           <option value="weather">Weather</option>
         </select>
+
+        <!-- Font Size Slider -->
+        <label for="fontSizeSliderSpeak">Font Size:</label>
+        <input
+          type="range"
+          id="fontSizeSliderSpeak"
+          min="12"
+          max="24"
+          value="16"
+          oninput="updateFontSize(this.value)"
+        >
+
         <div style="margin-top:10px; text-align: center;">
           <label>
             <input
@@ -451,10 +483,20 @@
       saveSettings();
     }
 
+    function updateFontSize(size) {
+      const px = size + 'px';
+      document.querySelectorAll('input[type="text"], textarea, button').forEach(el => {
+        el.style.fontSize = px;
+      });
+    }
+
     window.onload = () => {
       updateCarousel();
       loadHistory();
       loadSettings();
+      // apply initial font size from chat slider
+      const initialSize = document.getElementById('fontSizeSliderChat').value;
+      updateFontSize(initialSize);
     };
   </script>
 </body>
