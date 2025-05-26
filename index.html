@@ -15,7 +15,7 @@
     }
     .dark-mode {
       background-color: #1a1a1a;
-      color: #f0f0f0;
+      color: #1a1a1a;
     }
     .container {
       max-width: 500px;
@@ -224,7 +224,7 @@
       <div class="section settings">
         <h2>Settings</h2>
         <label>Topics:</label>
-        <select id="topics-chat" multiple onchange="saveSettings()">
+        <select id="topics-chat" multiple onchange="saveAllSettings()">
           <option value="faith">Faith</option>
           <option value="family">Family & Friends</option>
           <option value="health">Health</option>
@@ -243,7 +243,7 @@
           min="12"
           max="24"
           value="16"
-          oninput="updateFontSize(this.value)"
+          oninput="handleFontSizeChange(this.value)"
         >
 
         <div style="margin-top:10px; text-align: center;">
@@ -251,7 +251,7 @@
             <input
               type="checkbox"
               id="darkToggleChat"
-              onchange="toggleDarkMode(); saveSettings()"
+              onchange="saveAllSettings(); toggleDarkMode()"
             > Dark Mode
           </label>
         </div>
@@ -280,7 +280,7 @@
       <div class="section settings">
         <h2>Settings</h2>
         <label>Topics:</label>
-        <select id="topics-speak" multiple onchange="saveSettings()">
+        <select id="topics-speak" multiple onchange="saveAllSettings()">
           <option value="faith">Faith</option>
           <option value="family">Family & Friends</option>
           <option value="health">Health</option>
@@ -299,7 +299,7 @@
           min="12"
           max="24"
           value="16"
-          oninput="updateFontSize(this.value)"
+          oninput="handleFontSizeChange(this.value)"
         >
 
         <div style="margin-top:10px; text-align: center;">
@@ -307,7 +307,7 @@
             <input
               type="checkbox"
               id="darkToggleSpeak"
-              onchange="toggleDarkMode(); saveSettings()"
+              onchange="saveAllSettings(); toggleDarkMode()"
             > Dark Mode
           </label>
         </div>
@@ -450,6 +450,7 @@
           option.selected = values.includes(option.value);
         }
       }
+
       const darkChat = localStorage.getItem('darkToggleChat');
       if (darkChat === 'true') {
         document.getElementById('darkToggleChat').checked = true;
@@ -460,6 +461,12 @@
         document.getElementById('darkToggleSpeak').checked = true;
         document.body.classList.add('dark-mode');
       }
+
+      const storedFontSize = localStorage.getItem('fontSize');
+      const size = storedFontSize ? storedFontSize : '16';
+      document.getElementById('fontSizeSliderChat').value = size;
+      document.getElementById('fontSizeSliderSpeak').value = size;
+      updateFontSize(size);
     }
 
     function saveSettings() {
@@ -478,9 +485,22 @@
       localStorage.setItem('darkToggleSpeak', darkSpeak);
     }
 
-    function saveAllData() {
-      saveHistory();
+    function saveFontSize(size) {
+      localStorage.setItem('fontSize', size);
+    }
+
+    function saveAllSettings() {
       saveSettings();
+      const size = document.getElementById('fontSizeSliderChat').value;
+      saveFontSize(size);
+    }
+
+    function handleFontSizeChange(size) {
+      // Copy value to both sliders
+      document.getElementById('fontSizeSliderChat').value = size;
+      document.getElementById('fontSizeSliderSpeak').value = size;
+      updateFontSize(size);
+      saveFontSize(size);
     }
 
     function updateFontSize(size) {
@@ -490,13 +510,17 @@
       });
     }
 
+    function saveAllData() {
+      saveHistory();
+      saveSettings();
+      const size = document.getElementById('fontSizeSliderChat').value;
+      saveFontSize(size);
+    }
+
     window.onload = () => {
       updateCarousel();
       loadHistory();
       loadSettings();
-      // apply initial font size from chat slider
-      const initialSize = document.getElementById('fontSizeSliderChat').value;
-      updateFontSize(initialSize);
     };
   </script>
 </body>
