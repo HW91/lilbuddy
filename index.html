@@ -117,6 +117,7 @@
       border-radius: 6px;
       border: 1px solid #ccc;
       box-sizing: border-box;
+      /* font-size will be set via JS */
     }
     button {
       padding: 10px 16px;
@@ -126,6 +127,7 @@
       border: none;
       border-radius: 6px;
       cursor: pointer;
+      /* font-size will be set via JS */
     }
     button:hover {
       background-color: #1c5a94;
@@ -172,6 +174,7 @@
       margin: 8px auto;
       display: block;
     }
+    /* Slider style (basic) */
     .settings input[type="range"] {
       width: 90%;
       display: block;
@@ -199,6 +202,7 @@
       <div id="tab-speak" class="tab" onclick="switchTab('speak')">Speak for Me</div>
     </div>
 
+    <!-- Talk to Assistant Tab -->
     <div id="chat" class="tab-content active">
       <div class="section">
         <input
@@ -231,6 +235,7 @@
           <option value="weather">Weather</option>
         </select>
 
+        <!-- Font Size Slider -->
         <label for="fontSizeSliderChat">Font Size:</label>
         <input
           type="range"
@@ -253,6 +258,7 @@
       </div>
     </div>
 
+    <!-- Speak for Me Tab -->
     <div id="speak" class="tab-content">
       <div class="section">
         <textarea
@@ -285,6 +291,7 @@
           <option value="weather">Weather</option>
         </select>
 
+        <!-- Font Size Slider -->
         <label for="fontSizeSliderSpeak">Font Size:</label>
         <input
           type="range"
@@ -309,245 +316,228 @@
   </div>
 
   <script>
-    const voiceIds = [
-      "2qfp6zPuviqeCOZIE9RZ",
-      "csV9r3rRz8U2abspFcXE",
-      "Z3R5wn05IrDiVCyEkUrK",
-      "yHx9q5iHmtVGKONrqrIf",
-      "Xb3zeLrTi6F4ziIcXdwk",
-      "1SM7GgM6IMuvQlz2BwM3"
-    ];
-
-    const webhookURL = "https://hook.us1.make.com/zn2squqdln25x3tfjknfdopjb4hrxs2x";
-
-    const images = document.querySelectorAll('.carousel img');
+    // Carousel logic
+    const carousel = document.getElementById('carousel');
+    const images = carousel.querySelectorAll('img');
     let currentIndex = 0;
 
+    // Map assistant index to 11 Labs voice IDs
+    const voiceIDs = [
+      'TxGEqnHWrfWFTfGW9XjX', // Assistant 1
+      'ErXwobaYiN019PkySvjV', // Assistant 2
+      'MF3mGyEYCl7XYWbV9V6O', // Assistant 3
+      'VR6AewLTigWG4xSOukaG', // Assistant 4
+      'EXAVITQu4vr4xnSDxMaL', // Assistant 5
+      'TxGEqnHWrfWFTfGW9XjX'  // Assistant 6 (reuse first voice as example)
+    ];
+
+    // Keep track of selected voice ID
+    let selectedVoiceID = voiceIDs[0];
+
     function updateCarousel() {
-      images.forEach((img, i) => {
-        img.classList.remove('active');
-        if (i === currentIndex) img.classList.add('active');
+      images.forEach((img, idx) => {
+        img.classList.toggle('active', idx === currentIndex);
       });
+      selectedVoiceID = voiceIDs[currentIndex];
     }
+
     function next() {
       currentIndex = (currentIndex + 1) % images.length;
       updateCarousel();
     }
+
     function prev() {
       currentIndex = (currentIndex - 1 + images.length) % images.length;
       updateCarousel();
     }
 
-    function switchTab(name) {
-      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
-      document.getElementById('tab-' + name).classList.add('active');
-      document.getElementById(name).classList.add('active');
+    // Tab switching
+    function switchTab(tabName) {
+      const tabs = document.querySelectorAll('.tab');
+      const tabContents = document.querySelectorAll('.tab-content');
+
+      tabs.forEach(tab => {
+        tab.classList.toggle('active', tab.id === 'tab-' + tabName);
+      });
+      tabContents.forEach(tc => {
+        tc.classList.toggle('active', tc.id === tabName);
+      });
     }
 
+    // Save and load settings for topics and font size + dark mode per tab
+    function saveAllSettings() {
+      const topicsChat = Array.from(document.getElementById('topics-chat').selectedOptions).map(o => o.value);
+      const topicsSpeak = Array.from(document.getElementById('topics-speak').selectedOptions).map(o => o.value);
+      localStorage.setItem('topics-chat', JSON.stringify(topicsChat));
+      localStorage.setItem('topics-speak', JSON.stringify(topicsSpeak));
+      localStorage.setItem('fontSizeChat', document.getElementById('fontSizeSliderChat').value);
+      localStorage.setItem('fontSizeSpeak', document.getElementById('fontSizeSliderSpeak').value);
+      localStorage.setItem('darkModeChat', document.getElementById('darkToggleChat').checked);
+      localStorage.setItem('darkModeSpeak', document.getElementById('darkToggleSpeak').checked);
+      applySettings();
+    }
+
+    function applySettings() {
+      // Topics
+      let savedTopicsChat = JSON.parse(localStorage.getItem('topics-chat')) || [];
+      let savedTopicsSpeak = JSON.parse(localStorage.getItem('topics-speak')) || [];
+      setSelectedOptions('topics-chat', savedTopicsChat);
+      setSelectedOptions('topics-speak', savedTopicsSpeak);
+
+      // Font sizes
+      const fontSizeChat = localStorage.getItem('fontSizeChat') || '16';
+      const fontSizeSpeak = localStorage.getItem('fontSizeSpeak') || '16';
+      document.getElementById('fontSizeSliderChat').value = fontSizeChat;
+      document.getElementById('fontSizeSliderSpeak').value = fontSizeSpeak;
+
+      document.getElementById('userInput').style.fontSize = fontSizeChat + 'px';
+      document.getElementById('chatHistory').style.fontSize = fontSizeChat + 'px';
+
+      document.getElementById('textToSpeak').style.fontSize = fontSizeSpeak + 'px';
+      document.getElementById('speakHistory').style.fontSize = fontSizeSpeak + 'px';
+
+      // Dark mode
+      let darkChat = localStorage.getItem('darkModeChat') === 'true';
+      let darkSpeak = localStorage.getItem('darkModeSpeak') === 'true';
+
+      document.getElementById('darkToggleChat').checked = darkChat;
+      document.getElementById('darkToggleSpeak').checked = darkSpeak;
+
+      if (darkChat || darkSpeak) {
+        document.body.classList.add('dark-mode');
+      } else {
+        document.body.classList.remove('dark-mode');
+      }
+    }
+
+    function setSelectedOptions(selectId, values) {
+      const select = document.getElementById(selectId);
+      for (const option of select.options) {
+        option.selected = values.includes(option.value);
+      }
+    }
+
+    // Font size change handler
+    function handleFontSizeChange(value) {
+      if (document.getElementById('chat').classList.contains('active')) {
+        document.getElementById('userInput').style.fontSize = value + 'px';
+        document.getElementById('chatHistory').style.fontSize = value + 'px';
+      } else {
+        document.getElementById('textToSpeak').style.fontSize = value + 'px';
+        document.getElementById('speakHistory').style.fontSize = value + 'px';
+      }
+      saveAllSettings();
+    }
+
+    // Dark mode toggle
+    function toggleDarkMode() {
+      const darkChat = document.getElementById('darkToggleChat').checked;
+      const darkSpeak = document.getElementById('darkToggleSpeak').checked;
+      if (darkChat || darkSpeak) {
+        document.body.classList.add('dark-mode');
+      } else {
+        document.body.classList.remove('dark-mode');
+      }
+    }
+
+    // Shortcut buttons handler for both tabs
+    function speakShortcut(text) {
+      if (document.getElementById('chat').classList.contains('active')) {
+        document.getElementById('userInput').value = text;
+        sendMessage();
+      } else {
+        document.getElementById('textToSpeak').value = text;
+        speakText();
+      }
+    }
+
+    // Chat message sending
+    async function sendMessage() {
+      const userInput = document.getElementById('userInput');
+      const message = userInput.value.trim();
+      if (!message) return;
+
+      appendChatMessage('user', message);
+      userInput.value = '';
+
+      try {
+        // Call your webhook API with message and selected voice ID
+        const response = await fetch('https://your-webhook-endpoint', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            message: message,
+            voiceId: selectedVoiceID
+          })
+        });
+
+        if (!response.ok) throw new Error('Network error');
+
+        const data = await response.json();
+
+        // Expected response: { assistantResponse: "text", audioUrl: "https://..." }
+        appendChatMessage('assistant', data.assistantResponse);
+
+        if (data.audioUrl) {
+          playAudio(data.audioUrl);
+        }
+      } catch (error) {
+        appendChatMessage('assistant', 'Sorry, something went wrong.');
+      }
+    }
+
+    // Append messages to chat history
+    function appendChatMessage(sender, text) {
+      const chatHistory = document.getElementById('chatHistory');
+      const messageDiv = document.createElement('div');
+      messageDiv.className = 'message ' + sender;
+      const span = document.createElement('span');
+      span.textContent = text;
+      messageDiv.appendChild(span);
+      chatHistory.appendChild(messageDiv);
+      chatHistory.scrollTop = chatHistory.scrollHeight;
+    }
+
+    // Play audio from URL
+    function playAudio(url) {
+      let audio = document.getElementById('assistantAudio');
+      if (!audio) {
+        audio = document.createElement('audio');
+        audio.id = 'assistantAudio';
+        audio.autoplay = true;
+        document.body.appendChild(audio);
+      }
+      audio.src = url;
+      audio.play();
+    }
+
+    // Speak for Me tab function
     function speakText() {
-      const text = document.getElementById('textToSpeak').value.trim();
+      const textArea = document.getElementById('textToSpeak');
+      const text = textArea.value.trim();
       if (!text) return;
-      addSpeakMessage(text);
+
+      appendSpeakHistory(text);
+      textArea.value = '';
+
+      // Use Web Speech API (browser TTS) for speak for me
       const utterance = new SpeechSynthesisUtterance(text);
       speechSynthesis.speak(utterance);
-      document.getElementById('textToSpeak').value = '';
-    }
-    function speakShortcut(phrase) {
-      const utterance = new SpeechSynthesisUtterance(phrase);
-      speechSynthesis.speak(utterance);
-    }
-    function toggleDarkMode() {
-      document.body.classList.toggle('dark-mode');
     }
 
-    let chatHistoryArr = [];
-    let speakHistoryArr = [];
-
-    function loadHistory() {
-      const storedChat = localStorage.getItem('chatHistory');
-      if (storedChat) chatHistoryArr = JSON.parse(storedChat);
-      renderChatHistory();
-
-      const storedSpeak = localStorage.getItem('speakHistory');
-      if (storedSpeak) speakHistoryArr = JSON.parse(storedSpeak);
-      renderSpeakHistory();
+    // Append messages to speak history
+    function appendSpeakHistory(text) {
+      const speakHistory = document.getElementById('speakHistory');
+      const messageDiv = document.createElement('div');
+      messageDiv.textContent = text;
+      speakHistory.appendChild(messageDiv);
+      speakHistory.scrollTop = speakHistory.scrollHeight;
     }
 
-    function saveHistory() {
-      localStorage.setItem('chatHistory', JSON.stringify(chatHistoryArr.slice(-10)));
-      localStorage.setItem('speakHistory', JSON.stringify(speakHistoryArr.slice(-10)));
-    }
-
-    function renderChatHistory() {
-      const container = document.getElementById('chatHistory');
-      container.innerHTML = '';
-      chatHistoryArr.slice(-10).forEach(msg => {
-        const div = document.createElement('div');
-        div.classList.add('message', msg.sender);
-        const span = document.createElement('span');
-        span.innerText = msg.text;
-        div.appendChild(span);
-        container.appendChild(div);
-      });
-      container.scrollTop = container.scrollHeight;
-    }
-
-    function renderSpeakHistory() {
-      const container = document.getElementById('speakHistory');
-      container.innerHTML = '';
-      speakHistoryArr.slice(-10).forEach(text => {
-        const div = document.createElement('div');
-        div.classList.add('message', 'user');
-        const span = document.createElement('span');
-        span.innerText = text;
-        div.appendChild(span);
-        container.appendChild(div);
-      });
-      container.scrollTop = container.scrollHeight;
-    }
-
-    function sendMessage() {
-      const input = document.getElementById('userInput');
-      const text = input.value.trim();
-      if (!text) return;
-      addChatMessage('user', text);
-      input.value = '';
-      fetchAssistantReply(text);
-    }
-
-    function addChatMessage(sender, text) {
-      chatHistoryArr.push({ sender, text });
-      if (chatHistoryArr.length > 10) chatHistoryArr = chatHistoryArr.slice(-10);
-      saveAllData();
-      renderChatHistory();
-    }
-
-    function addSpeakMessage(text) {
-      speakHistoryArr.push(text);
-      if (speakHistoryArr.length > 10) speakHistoryArr = speakHistoryArr.slice(-10);
-      saveAllData();
-      renderSpeakHistory();
-    }
-
-    function fetchAssistantReply(userInput) {
-      const voice_id = voiceIds[currentIndex];
-      fetch(webhookURL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          message: userInput,
-          voice_id: voice_id
-        })
-      })
-      .then(response => response.json())
-      .then(data => {
-        const replyText = data.reply || "No reply received";
-        const audioUrl = data.audio_url;
-        addChatMessage('assistant', replyText);
-        if (audioUrl) {
-          const audio = new Audio(audioUrl);
-          audio.play();
-        }
-      })
-      .catch(err => {
-        console.error('Error calling webhook:', err);
-        const fallbackReply = "Sorry, something went wrong.";
-        addChatMessage('assistant', fallbackReply);
-        const utterance = new SpeechSynthesisUtterance(fallbackReply);
-        speechSynthesis.speak(utterance);
-      });
-    }
-
-    function loadSettings() {
-      const storedTopicsChat = localStorage.getItem('topics-chat');
-      if (storedTopicsChat) {
-        const values = JSON.parse(storedTopicsChat);
-        const select = document.getElementById('topics-chat');
-        for (let option of select.options) {
-          option.selected = values.includes(option.value);
-        }
-      }
-      const storedTopicsSpeak = localStorage.getItem('topics-speak');
-      if (storedTopicsSpeak) {
-        const values = JSON.parse(storedTopicsSpeak);
-        const select = document.getElementById('topics-speak');
-        for (let option of select.options) {
-          option.selected = values.includes(option.value);
-        }
-      }
-
-      const darkChat = localStorage.getItem('darkToggleChat');
-      if (darkChat === 'true') {
-        document.getElementById('darkToggleChat').checked = true;
-        document.body.classList.add('dark-mode');
-      }
-      const darkSpeak = localStorage.getItem('darkToggleSpeak');
-      if (darkSpeak === 'true') {
-        document.getElementById('darkToggleSpeak').checked = true;
-        document.body.classList.add('dark-mode');
-      }
-
-      const storedFontSize = localStorage.getItem('fontSize');
-      const size = storedFontSize ? storedFontSize : '16';
-      document.getElementById('fontSizeSliderChat').value = size;
-      document.getElementById('fontSizeSliderSpeak').value = size;
-      updateFontSize(size);
-    }
-
-    function saveSettings() {
-      const selectChat = document.getElementById('topics-chat');
-      const selectedChat = Array.from(selectChat.selectedOptions).map(o => o.value);
-      localStorage.setItem('topics-chat', JSON.stringify(selectedChat));
-
-      const selectSpeak = document.getElementById('topics-speak');
-      const selectedSpeak = Array.from(selectSpeak.selectedOptions).map(o => o.value);
-      localStorage.setItem('topics-speak', JSON.stringify(selectedSpeak));
-
-      const darkChat = document.getElementById('darkToggleChat').checked;
-      localStorage.setItem('darkToggleChat', darkChat);
-
-      const darkSpeak = document.getElementById('darkToggleSpeak').checked;
-      localStorage.setItem('darkToggleSpeak', darkSpeak);
-    }
-
-    function saveFontSize(size) {
-      localStorage.setItem('fontSize', size);
-    }
-
-    function saveAllSettings() {
-      saveSettings();
-      const size = document.getElementById('fontSizeSliderChat').value;
-      saveFontSize(size);
-    }
-
-    function handleFontSizeChange(size) {
-      document.getElementById('fontSizeSliderChat').value = size;
-      document.getElementById('fontSizeSliderSpeak').value = size;
-      updateFontSize(size);
-      saveFontSize(size);
-    }
-
-    function updateFontSize(size) {
-      const px = size + 'px';
-      document.querySelectorAll('input[type="text"], textarea, button').forEach(el => {
-        el.style.fontSize = px;
-      });
-    }
-
-    function saveAllData() {
-      saveHistory();
-      saveSettings();
-      const size = document.getElementById('fontSizeSliderChat').value;
-      saveFontSize(size);
-    }
-
+    // Initialize
     window.onload = () => {
       updateCarousel();
-      loadHistory();
-      loadSettings();
+      applySettings();
     };
   </script>
 </body>
