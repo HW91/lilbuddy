@@ -24,6 +24,7 @@
     }
     h2 {
       color: #2c72b4;
+      margin-bottom: 12px;
     }
     .tabs {
       display: flex;
@@ -114,6 +115,7 @@
       padding: 10px;
       border-radius: 6px;
       border: 1px solid #ccc;
+      box-sizing: border-box;
     }
     button {
       padding: 10px 16px;
@@ -161,6 +163,15 @@
       background-color: #e0e0e0;
       color: #333;
     }
+    /* Keep shortcut & settings styling the same */
+    .shortcut-buttons button {
+      margin: 4px 2px;
+    }
+    .settings select {
+      width: 90%;
+      margin: 8px auto;
+      display: block;
+    }
   </style>
 </head>
 <body>
@@ -183,44 +194,85 @@
       <div id="tab-speak" class="tab" onclick="switchTab('speak')">Speak for Me</div>
     </div>
 
+    <!-- Talk to Assistant Tab -->
     <div id="chat" class="tab-content active">
+      <h2>Talk to Assistant</h2>
       <div class="section">
-        <input id="userInput" type="text" placeholder="Type a message and press Enter" onkeydown="if(event.key==='Enter'){ sendMessage(); }">
+        <input
+          id="userInput"
+          type="text"
+          placeholder="Type a message and press Enter"
+          onkeydown="if(event.key==='Enter'){ sendMessage(); }"
+        >
         <div id="chatHistory" class="chat-history"></div>
       </div>
-    </div>
 
-    <div id="speak" class="tab-content">
-      <div class="section">
-        <textarea id="textToSpeak" rows="3" placeholder="Type here and press Enter to speak" onkeydown="if(event.key==='Enter' && !event.shiftKey){ event.preventDefault(); speakText(); }"></textarea>
-        <div id="speakHistory" class="speak-history"></div>
+      <div class="section shortcut-buttons">
+        <h2>Shortcut Buttons</h2>
+        <button onclick="speakShortcut('I need help')">I need help</button>
+        <button onclick="speakShortcut('Thank you')">Thank you</button>
+        <button onclick="speakShortcut('Please come here')">Please come here</button>
+      </div>
+
+      <div class="section settings">
+        <h2>Settings</h2>
+        <label>Topics:</label>
+        <select id="topics-chat" multiple>
+          <option value="faith">Faith</option>
+          <option value="family">Family & Friends</option>
+          <option value="health">Health</option>
+          <option value="jokes">Jokes</option>
+          <option value="music">Music</option>
+          <option value="news">News</option>
+          <option value="sports">Sports</option>
+          <option value="weather">Weather</option>
+        </select>
+        <div style="margin-top:10px; text-align: center;">
+          <label>
+            <input type="checkbox" id="darkToggleChat" onchange="toggleDarkMode()"> Dark Mode
+          </label>
+        </div>
       </div>
     </div>
 
-    <div class="section">
-      <h2>Shortcut Buttons</h2>
-      <button onclick="speakShortcut('I need help')">I need help</button>
-      <button onclick="speakShortcut('Thank you')">Thank you</button>
-      <button onclick="speakShortcut('Please come here')">Please come here</button>
-    </div>
+    <!-- Speak for Me Tab -->
+    <div id="speak" class="tab-content">
+      <h2>Speak for Me</h2>
+      <div class="section">
+        <textarea
+          id="textToSpeak"
+          rows="3"
+          placeholder="Type here and press Enter to speak"
+          onkeydown="if(event.key==='Enter' && !event.shiftKey){ event.preventDefault(); speakText(); }"
+        ></textarea>
+        <div id="speakHistory" class="speak-history"></div>
+      </div>
 
-    <div class="section">
-      <h2>Settings</h2>
-      <label>Topics:</label>
-      <select id="topics" multiple>
-        <option value="faith">Faith</option>
-        <option value="family">Family & Friends</option>
-        <option value="health">Health</option>
-        <option value="jokes">Jokes</option>
-        <option value="music">Music</option>        
-        <option value="news">News</option>
-        <option value="sports">Sports</option>
-        <option value="weather">Weather</option>
-      </select>
-      <div style="margin-top:10px;">
-        <label>
-          <input type="checkbox" id="darkToggle" onchange="toggleDarkMode()"> Dark Mode
-        </label>
+      <div class="section shortcut-buttons">
+        <h2>Shortcut Buttons</h2>
+        <button onclick="speakShortcut('I need help')">I need help</button>
+        <button onclick="speakShortcut('Thank you')">Thank you</button>
+        <button onclick="speakShortcut('Please come here')">Please come here</button>
+      </div>
+
+      <div class="section settings">
+        <h2>Settings</h2>
+        <label>Topics:</label>
+        <select id="topics-speak" multiple>
+          <option value="faith">Faith</option>
+          <option value="family">Family & Friends</option>
+          <option value="health">Health</option>
+          <option value="jokes">Jokes</option>
+          <option value="music">Music</option>
+          <option value="news">News</option>
+          <option value="sports">Sports</option>
+          <option value="weather">Weather</option>
+        </select>
+        <div style="margin-top:10px; text-align: center;">
+          <label>
+            <input type="checkbox" id="darkToggleSpeak" onchange="toggleDarkMode()"> Dark Mode
+          </label>
+        </div>
       </div>
     </div>
   </div>
@@ -258,10 +310,12 @@
       speechSynthesis.speak(utterance);
       document.getElementById('textToSpeak').value = '';
     }
+
     function speakShortcut(phrase) {
       const utterance = new SpeechSynthesisUtterance(phrase);
       speechSynthesis.speak(utterance);
     }
+
     function toggleDarkMode() {
       document.body.classList.toggle('dark-mode');
     }
@@ -278,10 +332,12 @@
       if (storedSpeak) speakHistoryArr = JSON.parse(storedSpeak);
       renderSpeakHistory();
     }
+
     function saveHistory() {
       localStorage.setItem('chatHistory', JSON.stringify(chatHistoryArr.slice(-10)));
       localStorage.setItem('speakHistory', JSON.stringify(speakHistoryArr.slice(-10)));
     }
+
     function renderChatHistory() {
       const container = document.getElementById('chatHistory');
       container.innerHTML = '';
@@ -295,6 +351,7 @@
       });
       container.scrollTop = container.scrollHeight;
     }
+
     function renderSpeakHistory() {
       const container = document.getElementById('speakHistory');
       container.innerHTML = '';
@@ -308,6 +365,7 @@
       });
       container.scrollTop = container.scrollHeight;
     }
+
     function sendMessage() {
       const input = document.getElementById('userInput');
       const text = input.value.trim();
@@ -316,18 +374,21 @@
       input.value = '';
       fetchAssistantReply(text);
     }
+
     function addChatMessage(sender, text) {
       chatHistoryArr.push({ sender, text });
       if (chatHistoryArr.length > 10) chatHistoryArr = chatHistoryArr.slice(-10);
       saveHistory();
       renderChatHistory();
     }
+
     function addSpeakMessage(text) {
       speakHistoryArr.push(text);
       if (speakHistoryArr.length > 10) speakHistoryArr = speakHistoryArr.slice(-10);
       saveHistory();
       renderSpeakHistory();
     }
+
     function fetchAssistantReply(userInput) {
       const reply = "This is a sample assistant reply to: " + userInput;
       addChatMessage('assistant', reply);
