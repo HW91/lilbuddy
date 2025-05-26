@@ -223,7 +223,7 @@
 
       <div class="section settings">
         <h2>Settings</h2>
-        <label>Topics for Assistant:</label>
+        <label>Topics:</label>
         <select id="topics-chat" multiple onchange="saveAllSettings()">
           <option value="faith">Faith</option>
           <option value="family">Family & Friends</option>
@@ -323,12 +323,12 @@
 
     // Map assistant index to 11 Labs voice IDs
     const voiceIDs = [
-      '2qfp6zPuviqeCOZIE9RZ', // Assistant 1
+      'TxGEqnHWrfWFTfGW9XjX', // Assistant 1
       'ErXwobaYiN019PkySvjV', // Assistant 2
       'MF3mGyEYCl7XYWbV9V6O', // Assistant 3
       'VR6AewLTigWG4xSOukaG', // Assistant 4
       'EXAVITQu4vr4xnSDxMaL', // Assistant 5
-      'TxGEqnHWrfWFTfGW9XjX'  // Assistant 6 
+      'TxGEqnHWrfWFTfGW9XjX'  // Assistant 6 (reuse first voice as example)
     ];
 
     // Keep track of selected voice ID
@@ -462,7 +462,7 @@
 
       try {
         // Call your webhook API with message and selected voice ID
-        const response = await fetch('https://your-webhook-endpoint', {
+        const response = await fetch('https://hook.us1.make.com/zn2squqdln25x3tfjknfdopjb4hrxs2x', {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({
