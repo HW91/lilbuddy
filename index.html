@@ -106,10 +106,12 @@
     .arrow.right {
       right: 10px;
     }
-    textarea, select, input[type="number"], input[type="text"] {
-      width: 100%;
+    input[type="text"],
+    textarea {
+      width: 90%;
+      display: block;
+      margin: 8px auto;
       padding: 10px;
-      margin: 8px 0;
       border-radius: 6px;
       border: 1px solid #ccc;
     }
@@ -182,15 +184,14 @@
 
     <div id="chat" class="tab-content active">
       <div class="section">
-        <input id="userInput" type="text" placeholder="Type a message and press Enter" onkeydown="if(event.key==='Enter'){sendMessage();}">
+        <input id="userInput" type="text" placeholder="Type a message and press Enter" onkeydown="if(event.key==='Enter'){ sendMessage(); }">
         <div id="chatHistory" class="chat-history"></div>
       </div>
     </div>
 
     <div id="speak" class="tab-content">
       <div class="section">
-        <textarea id="textToSpeak" rows="3" placeholder="Type here and press Speak"></textarea>
-        <button onclick="speakText()">Speak</button>
+        <textarea id="textToSpeak" rows="3" placeholder="Type here and press Enter to speak" onkeydown="if(event.key==='Enter' && !event.shiftKey){ event.preventDefault(); speakText(); }"></textarea>
       </div>
     </div>
 
@@ -248,7 +249,8 @@
     }
 
     function speakText() {
-      const text = document.getElementById('textToSpeak').value;
+      const text = document.getElementById('textToSpeak').value.trim();
+      if (!text) return;
       const utterance = new SpeechSynthesisUtterance(text);
       speechSynthesis.speak(utterance);
     }
@@ -263,9 +265,7 @@
     let chatHistoryArr = [];
     function loadHistory() {
       const stored = localStorage.getItem('chatHistory');
-      if (stored) {
-        chatHistoryArr = JSON.parse(stored);
-      }
+      if (stored) chatHistoryArr = JSON.parse(stored);
       renderHistory();
     }
     function saveHistory() {
