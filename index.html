@@ -15,7 +15,7 @@
     }
     .dark-mode {
       background-color: #1a1a1a;
-      color: #1a1a1a;
+      color: #f0f0f0;
     }
     .container {
       max-width: 500px;
@@ -110,7 +110,7 @@
     }
     input[type="text"],
     textarea {
-      width: 94%;
+      width: 90%;
       display: block;
       margin: 8px auto;
       padding: 10px;
@@ -168,7 +168,7 @@
       margin: 4px 2px;
     }
     .settings select {
-      width: 94%;
+      width: 90%;
       margin: 8px auto;
       display: block;
     }
@@ -194,6 +194,7 @@
       <div id="tab-speak" class="tab" onclick="switchTab('speak')">Speak for Me</div>
     </div>
 
+    <!-- Talk to Assistant Tab -->
     <div id="chat" class="tab-content active">
       <div class="section">
         <input
@@ -215,7 +216,7 @@
       <div class="section settings">
         <h2>Settings</h2>
         <label>Topics:</label>
-        <select id="topics-chat" multiple>
+        <select id="topics-chat" multiple onchange="saveSettings()">
           <option value="faith">Faith</option>
           <option value="family">Family & Friends</option>
           <option value="health">Health</option>
@@ -227,12 +228,17 @@
         </select>
         <div style="margin-top:10px; text-align: center;">
           <label>
-            <input type="checkbox" id="darkToggleChat" onchange="toggleDarkMode()"> Dark Mode
+            <input
+              type="checkbox"
+              id="darkToggleChat"
+              onchange="toggleDarkMode(); saveSettings()"
+            > Dark Mode
           </label>
         </div>
       </div>
     </div>
 
+    <!-- Speak for Me Tab -->
     <div id="speak" class="tab-content">
       <div class="section">
         <textarea
@@ -254,7 +260,7 @@
       <div class="section settings">
         <h2>Settings</h2>
         <label>Topics:</label>
-        <select id="topics-speak" multiple>
+        <select id="topics-speak" multiple onchange="saveSettings()">
           <option value="faith">Faith</option>
           <option value="family">Family & Friends</option>
           <option value="health">Health</option>
@@ -266,7 +272,11 @@
         </select>
         <div style="margin-top:10px; text-align: center;">
           <label>
-            <input type="checkbox" id="darkToggleSpeak" onchange="toggleDarkMode()"> Dark Mode
+            <input
+              type="checkbox"
+              id="darkToggleSpeak"
+              onchange="toggleDarkMode(); saveSettings()"
+            > Dark Mode
           </label>
         </div>
       </div>
@@ -276,6 +286,7 @@
   <script>
     const images = document.querySelectorAll('.carousel img');
     let currentIndex = 0;
+
     function updateCarousel() {
       images.forEach((img, i) => {
         img.classList.remove('active');
@@ -306,12 +317,10 @@
       speechSynthesis.speak(utterance);
       document.getElementById('textToSpeak').value = '';
     }
-
     function speakShortcut(phrase) {
       const utterance = new SpeechSynthesisUtterance(phrase);
       speechSynthesis.speak(utterance);
     }
-
     function toggleDarkMode() {
       document.body.classList.toggle('dark-mode');
     }
@@ -374,14 +383,14 @@
     function addChatMessage(sender, text) {
       chatHistoryArr.push({ sender, text });
       if (chatHistoryArr.length > 10) chatHistoryArr = chatHistoryArr.slice(-10);
-      saveHistory();
+      saveAllData();
       renderChatHistory();
     }
 
     function addSpeakMessage(text) {
       speakHistoryArr.push(text);
       if (speakHistoryArr.length > 10) speakHistoryArr = speakHistoryArr.slice(-10);
-      saveHistory();
+      saveAllData();
       renderSpeakHistory();
     }
 
@@ -392,9 +401,60 @@
       speechSynthesis.speak(utterance);
     }
 
+    function loadSettings() {
+      const storedTopicsChat = localStorage.getItem('topics-chat');
+      if (storedTopicsChat) {
+        const values = JSON.parse(storedTopicsChat);
+        const select = document.getElementById('topics-chat');
+        for (let option of select.options) {
+          option.selected = values.includes(option.value);
+        }
+      }
+      const storedTopicsSpeak = localStorage.getItem('topics-speak');
+      if (storedTopicsSpeak) {
+        const values = JSON.parse(storedTopicsSpeak);
+        const select = document.getElementById('topics-speak');
+        for (let option of select.options) {
+          option.selected = values.includes(option.value);
+        }
+      }
+      const darkChat = localStorage.getItem('darkToggleChat');
+      if (darkChat === 'true') {
+        document.getElementById('darkToggleChat').checked = true;
+        document.body.classList.add('dark-mode');
+      }
+      const darkSpeak = localStorage.getItem('darkToggleSpeak');
+      if (darkSpeak === 'true') {
+        document.getElementById('darkToggleSpeak').checked = true;
+        document.body.classList.add('dark-mode');
+      }
+    }
+
+    function saveSettings() {
+      const selectChat = document.getElementById('topics-chat');
+      const selectedChat = Array.from(selectChat.selectedOptions).map(o => o.value);
+      localStorage.setItem('topics-chat', JSON.stringify(selectedChat));
+
+      const selectSpeak = document.getElementById('topics-speak');
+      const selectedSpeak = Array.from(selectSpeak.selectedOptions).map(o => o.value);
+      localStorage.setItem('topics-speak', JSON.stringify(selectedSpeak));
+
+      const darkChat = document.getElementById('darkToggleChat').checked;
+      localStorage.setItem('darkToggleChat', darkChat);
+
+      const darkSpeak = document.getElementById('darkToggleSpeak').checked;
+      localStorage.setItem('darkToggleSpeak', darkSpeak);
+    }
+
+    function saveAllData() {
+      saveHistory();
+      saveSettings();
+    }
+
     window.onload = () => {
       updateCarousel();
       loadHistory();
+      loadSettings();
     };
   </script>
 </body>
