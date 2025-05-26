@@ -40,6 +40,11 @@
       margin-bottom: 20px;
     }
 
+    .carousel {
+      position: sticky;
+      top: 20px;
+    }
+
     .carousel img {
       display: none;
       width: 300px;
@@ -55,16 +60,24 @@
     .arrow {
       position: absolute;
       top: 50%;
-      transform: translateY(0%);
+      transform: translateY(-50%);
       background: transparent !important;
       color: white;
       border: none;
-      border-radius: 0% !important;
-      width: 0px;
-      height: 0px;
+      border-radius: 0 !important;
+      width: 40px;
+      height: 40px;
       font-size: 20px;
       cursor: pointer;
       z-index: 1;
+      outline: none;
+    }
+
+    .arrow:focus,
+    .arrow:active {
+      background: transparent !important;
+      outline: none !important;
+      box-shadow: none !important;
     }
 
     .arrow.left {
